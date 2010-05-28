@@ -1,8 +1,10 @@
 Changes
-MANIFEST
-Makefile.PL
-README
 lib/Search/OpenSearch/Server.pm
+lib/Search/OpenSearch/Server/Plack.pm
+Makefile.PL
+MANIFEST
+README
 t/00-load.t
+t/01-plack.t
 t/pod-coverage.t
 t/pod.t
