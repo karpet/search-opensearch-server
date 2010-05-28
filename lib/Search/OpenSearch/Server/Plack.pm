@@ -2,18 +2,13 @@ package Search::OpenSearch::Server::Plack;
 
 use warnings;
 use strict;
+use base qw( Plack::Middleware );
 use Carp;
-use Data::Dump qw( dump );
-use Moose;
 use Search::OpenSearch;
 use Plack::Request;
+use Plack::Util::Accessor qw( engine engine_config );
 
 our $VERSION = '0.01';
-
-extends 'Plack::Middleware';
-
-has engine        => ( is => 'rw' );
-has engine_config => ( is => 'rw' );
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -31,6 +26,12 @@ sub setup_engine {
         return 1;
     }
     if ( defined $self->engine_config ) {
+
+        # this appears to correctly defer creation
+        # till each child is created, regardless of -L Delayed
+        # So nice when code Just Works.
+        #warn "[$$] engine created";
+
         $self->engine(
             Search::OpenSearch->engine( %{ $self->engine_config } ) );
         return 1;
@@ -44,6 +45,14 @@ sub call {
     return $self->do_search($req);
 }
 
+sub handle_no_query {
+    my ( $self, $response ) = @_;
+    $response->status(400);
+    $response->content_type('text/plain');
+    $response->body("'q' required");
+    return $response;
+}
+
 sub do_search {
     my ( $self, $req ) = @_;
     my %args     = ();
@@ -51,9 +60,7 @@ sub do_search {
     my $response = $req->new_response;
     my $query    = $params->{q};
     if ( !defined $query ) {
-        $response->status(400);
-        $response->content_type('text/plain');
-        $response->body("'q' required");
+        $response = $self->handle_no_query($response);
     }
     else {
         for my $param (qw( q s o p h c L f format )) {
@@ -113,15 +120,15 @@ Search::OpenSearch::Server::Plack - serve OpenSearch results with Plack
  
 =head1 DESCRIPTION
 
-Search::OpenSearch::Server::Plack is a Plack::Middleware application.
-This module implements a HTTP-ready Search::OpenSearch server using Plack.
+Search::OpenSearch::Server::Plack is a L<Plack::Middleware> application.
+This module implements a HTTP-ready L<Search::OpenSearch> server using L<Plack>.
 
 =head1 METHODS
 
 =head2 call
 
 Implements the required Middleware method. The default behavior is to
-instantiate a Plack::Request and pass it into do_search().
+instantiate a L<Plack::Request> and pass it into do_search().
 
 =head2 prepare_app
 
@@ -138,6 +145,12 @@ The meat of the application. This method checks params in I<request>,
 mapping them to the Search::OpenSearch::Engine API.
 
 Returns a Plack::Reponse, finalize()d.
+
+=head2 handle_no_query( I<response> )
+
+If no 'q' param is present in the Plack::Request, this method is called.
+The default behavior is to set a 400 (bad request) with error message.
+You can override it to behave more kindly.
  
 =head1 AUTHOR
 
