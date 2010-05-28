@@ -112,11 +112,33 @@ Search::OpenSearch::Server::Plack - serve OpenSearch results with Plack
 
 =head1 SYNOPSIS
 
- # write a PSGI application
+ # write a PSGI application in yourapp.psgi
+ use strict;
+ use warnings;
+ use Plack::Builder;
+ use Search::OpenSearch::Server::Plack;
  
+ my $engine_config = {
+    type   => 'KSx',
+    index  => ['path/to/your/index'],
+    facets => {
+        names       => [qw( topics people places orgs author )],
+        sample_size => 10_000,
+    },
+    fields => [qw( topics people places orgs author )],
+ };
+
+ my $app = Search::OpenSearch::Server::Plack->new( 
+    engine_config => $engine_config
+ );
+
+ builder {
+    mount '/' => $app;
+ };
+
  
  # run the app
- 
+ % plackup yourapp.psgi
  
 =head1 DESCRIPTION
 
