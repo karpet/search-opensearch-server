@@ -8,7 +8,7 @@ use Search::OpenSearch;
 use Plack::Request;
 use Plack::Util::Accessor qw( engine engine_config );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -63,7 +63,7 @@ sub do_search {
         $response = $self->handle_no_query($response);
     }
     else {
-        for my $param (qw( q s o p h c L f format )) {
+        for my $param (qw( b q s o p h c L f format )) {
             $args{$param} = $params->{$param};
         }
 

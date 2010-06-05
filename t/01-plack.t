@@ -8,8 +8,9 @@ use JSON::XS;
 SKIP: {
 
     my $index_path = $ENV{OPENSEARCH_INDEX};
-    if ( !defined $index_path ) {
-        skip "set OPENSEARCH_INDEX path to test Plack with KSx", 7;
+    if ( !defined $index_path or !-d $index_path ) {
+        diag("set OPENSEARCH_INDEX to valid path to test Plack with KSx");
+        skip "set OPENSEARCH_INDEX to valid path to test Plack with KSx", 7;
     }
     eval "use Plack::Test";
     if ($@) {

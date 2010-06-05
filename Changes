@@ -6,3 +6,6 @@ Revision history for Search-OpenSearch-Server
 0.02    28 May 2010
         * flesh out the SYNOPSIS
 
+0.03    xxx
+        * add 'b' param support
+
