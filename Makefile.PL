@@ -15,6 +15,7 @@ WriteMakefile(
         'Test::More'         => 0,
         'Plack'              => 0,
         'Search::OpenSearch' => 0,
+        'JSON::XS'           => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES    => 'Search-OpenSearch-Server-*' },

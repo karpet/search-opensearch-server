@@ -9,3 +9,6 @@ Revision history for Search-OpenSearch-Server
 0.03    22 June 2010
         * add 'b' param support
 
+0.04    xxx
+        * add missing dep on JSON::XS to Makefile.PL
+
