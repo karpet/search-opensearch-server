@@ -7,6 +7,7 @@ use Carp;
 use Search::OpenSearch;
 use Plack::Request;
 use Plack::Util::Accessor qw( engine engine_config );
+use Data::Dump qw( dump );
 
 our $VERSION = '0.04';
 
@@ -42,7 +43,18 @@ sub setup_engine {
 sub call {
     my ( $self, $env ) = @_;
     my $req = Plack::Request->new($env);
-    return $self->do_search($req);
+    if ( $req->method eq 'GET' ) {
+        return $self->do_search($req);
+    }
+    if ( !$self->engine->has_rest_api && $req->method eq 'POST' ) {
+        return $self->do_search($req);
+    }
+    elsif ( $self->engine->has_rest_api ) {
+        return $self->do_rest_api($req);
+    }
+    else {
+        return $self->handle_no_query( $req->new_response )->finalize();
+    }
 }
 
 sub handle_no_query {
@@ -98,6 +110,25 @@ sub do_search {
         }
 
     }
+
+    return $response->finalize();
+}
+
+sub do_rest_api {
+    my ( $self, $req ) = @_;
+
+    my %args     = ();
+    my $params   = $req->parameters;
+    my $response = $req->new_response;
+
+    # TODO
+
+    $response->status(200);
+
+    #$response->content_type( $formats{ $args{format} } );
+    $response->body("REST for the weary");
+
+    dump($response);
 
     return $response->finalize();
 }
