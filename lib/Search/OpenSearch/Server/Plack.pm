@@ -8,6 +8,7 @@ use Search::OpenSearch;
 use Plack::Request;
 use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
+use JSON;
 
 our $VERSION = '0.04';
 
@@ -114,21 +115,42 @@ sub do_search {
     return $response->finalize();
 }
 
+# only supports JSON for now.
 sub do_rest_api {
     my ( $self, $req ) = @_;
 
     my %args     = ();
     my $params   = $req->parameters;
     my $response = $req->new_response;
+    my $method   = $req->method;
 
-    # TODO
+    my $engine = $self->engine;
+    if ( !$engine->can($method) ) {
+        $response->status(415);
+        $response->body(
+            to_json( { success => 0, msg => "Unsupported method: $method" } )
+        );
+    }
+    else {
 
-    $response->status(200);
+        #warn "method==$method";
+        my $rest = $engine->$method(
+            {   url     => $req->path,
+                content => $req->content,
+                type    => $req->content_type,
+                size    => $req->content_length
+            }
+        );
 
-    #$response->content_type( $formats{ $args{format} } );
-    $response->body("REST for the weary");
+        # TODO
 
-    dump($response);
+        $response->status( $rest->{code} );
+        $response->content_type( $formats{'JSON'} );
+        $response->body( to_json($rest) );
+
+        #dump($response);
+
+    }
 
     return $response->finalize();
 }
@@ -198,6 +220,11 @@ The meat of the application. This method checks params in I<request>,
 mapping them to the Search::OpenSearch::Engine API.
 
 Returns a Plack::Reponse, finalize()d.
+
+=head2 do_rest_api( I<request> )
+
+If the Engine used supports has_rest_api(), this method calls
+the appropriate HTTP method on the Engine object.
 
 =head2 handle_no_query( I<response> )
 
