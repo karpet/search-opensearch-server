@@ -128,28 +128,50 @@ sub do_rest_api {
     if ( !$engine->can($method) ) {
         $response->status(415);
         $response->body(
-            to_json( { success => 0, msg => "Unsupported method: $method" } )
+            encode_json(
+                { success => 0, msg => "Unsupported method: $method" }
+            )
         );
     }
     else {
 
         #warn "method==$method";
-        my $rest = $engine->$method(
-            {   url     => $req->path,
-                content => $req->content,
-                type    => $req->content_type,
-                size    => $req->content_length
+        my $doc = {
+            url     => $req->path,
+            content => $req->content,
+            type    => $req->content_type,
+            size    => $req->content_length
+        };
+        $doc->{url} =~ s,^/,,;    # strip leading /
+
+        #dump $doc;
+
+        if ( $doc->{url} eq '/' or $doc->{url} eq "" ) {
+
+            #warn "invalid url";
+            $response->status(400);
+            $response->body(
+                encode_json(
+                    {   success => 0,
+                        msg     => "Invalid or missing document URI",
+                    }
+                )
+            );
+        }
+        else {
+            my $rest = $engine->$method($doc);
+            if ( $rest->{code} =~ m/^2/ ) {
+                $rest->{success} = 1;
             }
-        );
+            else {
+                $rest->{success} = 0;
+            }
+            $response->status( $rest->{code} );
+            $response->content_type( $formats{'JSON'} );
+            $response->body( encode_json($rest) );
 
-        # TODO
-
-        $response->status( $rest->{code} );
-        $response->content_type( $formats{'JSON'} );
-        $response->body( to_json($rest) );
-
-        #dump($response);
-
+            #dump($response);
+        }
     }
 
     return $response->finalize();
