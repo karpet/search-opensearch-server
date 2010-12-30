@@ -44,8 +44,13 @@ sub setup_engine {
 sub call {
     my ( $self, $env ) = @_;
     my $req = Plack::Request->new($env);
-    if ( $req->method eq 'GET' ) {
+    if ( $req->method eq 'GET' and length $req->path == 1 ) {
         return $self->do_search($req);
+    }
+    elsif ( $req->method eq 'GET'
+        and $self->engine->has_rest_api )
+    {
+        return $self->do_rest_api($req);
     }
     if ( !$self->engine->has_rest_api && $req->method eq 'POST' ) {
         return $self->do_search($req);
@@ -159,7 +164,11 @@ sub do_rest_api {
             );
         }
         else {
-            my $rest = $engine->$method($doc);
+            my $arg = $doc;
+            if ( $method eq 'GET' or $method eq 'DELETE' ) {
+                $arg = $doc->{url};
+            }
+            my $rest = $engine->$method($arg);
             if ( $rest->{code} =~ m/^2/ ) {
                 $rest->{success} = 1;
             }

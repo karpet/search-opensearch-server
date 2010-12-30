@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Data::Dump qw( dump );
 use JSON::XS;
 
@@ -10,15 +10,15 @@ SKIP: {
     my $index_path = $ENV{OPENSEARCH_INDEX};
     if ( !defined $index_path or !-d $index_path ) {
         diag("set OPENSEARCH_INDEX to valid path to test Plack with KSx");
-        skip "set OPENSEARCH_INDEX to valid path to test Plack with KSx", 7;
+        skip "set OPENSEARCH_INDEX to valid path to test Plack with KSx", 8;
     }
     eval "use Plack::Test";
     if ($@) {
-        skip "Plack::Test not available", 7;
+        skip "Plack::Test not available", 8;
     }
     eval "use Search::OpenSearch::Engine::KSx";
     if ($@) {
-        skip "Search::OpenSearch::Engine::KSx not available", 7;
+        skip "Search::OpenSearch::Engine::KSx not available", 8;
     }
 
     require Search::OpenSearch::Server::Plack;
@@ -60,6 +60,19 @@ SKIP: {
     );
 
     # REST
+
+    test_psgi(
+        app    => $app,
+        client => sub {
+            my $cb  = shift;
+            my $req = HTTP::Request->new( GET => 'http://localhost/foo/bar' );
+            my $res = $cb->($req);
+
+            #dump $res;
+            is( $res->code, 404, "foo/bar does not exist" );
+        }
+    );
+
     test_psgi(
         app    => $app,
         client => sub {
