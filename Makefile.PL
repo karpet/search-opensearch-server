@@ -15,9 +15,9 @@ WriteMakefile(
     AUTHOR        => q{Peter Karman <karman@cpan.org>},
     VERSION_FROM  => 'lib/Search/OpenSearch/Server.pm',
     ABSTRACT_FROM => 'lib/Search/OpenSearch/Server.pm',
-    ( $ExtUtils::MakeMaker::VERSION >= 6.3002
-        ? ( 'LICENSE' => 'perl' )
-        : () ),
+    (   $MM_Version >= 6.3002 ? ( 'LICENSE' => 'perl' )
+        : ()
+    ),
     PL_FILES  => {},
     PREREQ_PM => {
         'Test::More'         => 0,
