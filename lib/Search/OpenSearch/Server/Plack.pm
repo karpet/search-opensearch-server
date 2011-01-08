@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -43,8 +43,9 @@ sub setup_engine {
 
 sub call {
     my ( $self, $env ) = @_;
-    my $req = Plack::Request->new($env);
-    if ( $req->method eq 'GET' and length $req->path == 1 ) {
+    my $req  = Plack::Request->new($env);
+    my $path = $req->path;
+    if ( $req->method eq 'GET' and length $path == 1 ) {
         return $self->do_search($req);
     }
     elsif ( $req->method eq 'GET'

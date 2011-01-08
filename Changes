@@ -12,3 +12,5 @@ Revision history for Search-OpenSearch-Server
 0.04    26 June 2010
         * add missing dep on JSON::XS to Makefile.PL
 
+0.05    07 Jan 2011
+        * add REST support
