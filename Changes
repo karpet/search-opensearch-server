@@ -14,3 +14,6 @@ Revision history for Search-OpenSearch-Server
 
 0.05    07 Jan 2011
         * add REST support
+
+0.06    26 Sept 2011
+        * add support for X-SOS-* HTTP headers

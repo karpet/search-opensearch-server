@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -142,15 +142,22 @@ sub do_rest_api {
     else {
 
         #warn "method==$method";
+
+        # defer to explicit headers over implicit values
         my $doc = {
-            url     => $req->path,
+            url => ( $req->header('X-SOS-Content-Location') || $req->path ),
+            modtime => ( $req->header('X-SOS-Last-Modified') || time() ),
             content => $req->content,
-            type    => $req->content_type,
-            size    => $req->content_length
+            type =>
+                ( $req->header('X-SOS-Content-Type') || $req->content_type ),
+            size => $req->content_length,
+            encoding =>
+                ( $req->header('X-SOS-Encoding') || $req->content_encoding ),
+            parser => ( $req->header('X-SOS-Parser-Type') || undef ),
         };
         $doc->{url} =~ s,^/,,;    # strip leading /
 
-        #dump $doc;
+        #warn dump $doc;
 
         if ( $doc->{url} eq '/' or $doc->{url} eq "" ) {
 
@@ -169,7 +176,11 @@ sub do_rest_api {
             if ( $method eq 'GET' or $method eq 'DELETE' ) {
                 $arg = $doc->{url};
             }
+
+            # call the REST method
             my $rest = $engine->$method($arg);
+
+            # set up the response
             if ( $rest->{code} =~ m/^2/ ) {
                 $rest->{success} = 1;
             }
@@ -257,6 +268,23 @@ Returns a Plack::Reponse, finalize()d.
 
 If the Engine used supports has_rest_api(), this method calls
 the appropriate HTTP method on the Engine object.
+
+The following HTTP headers are supported for explicitly setting
+the indexer behavior:
+
+=over
+
+=item X-SOS-Content-Location
+
+=item X-SOS-Last-Modified
+
+=item X-SOS-Parser-Type
+
+=item X-SOS-Content-Type
+
+=item X-SOS-Encoding
+
+=back
 
 =head2 handle_no_query( I<response> )
 
