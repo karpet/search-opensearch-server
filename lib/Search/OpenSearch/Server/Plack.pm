@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -150,9 +150,12 @@ sub do_rest_api {
             content => $req->content,
             type =>
                 ( $req->header('X-SOS-Content-Type') || $req->content_type ),
-            size => $req->content_length,
-            encoding =>
-                ( $req->header('X-SOS-Encoding') || $req->content_encoding ),
+            size    => $req->content_length,
+            charset => (
+                       $req->header('X-SOS-Encoding')
+                    || $req->content_encoding
+                    || 'UTF-8'
+            ),
             parser => ( $req->header('X-SOS-Parser-Type') || undef ),
         };
         $doc->{url} =~ s,^/,,;    # strip leading /
