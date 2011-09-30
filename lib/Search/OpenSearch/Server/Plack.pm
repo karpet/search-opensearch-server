@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -160,6 +160,10 @@ sub do_rest_api {
         };
         $doc->{url} =~ s,^/,,;    # strip leading /
 
+        if ($req->logger) {
+            $req->logger->( { level => 'debug', message => dump $doc } );
+        }
+
         #warn dump $doc;
 
         if ( $doc->{url} eq '/' or $doc->{url} eq "" ) {
@@ -218,7 +222,7 @@ Search::OpenSearch::Server::Plack - serve OpenSearch results with Plack
  use Search::OpenSearch::Server::Plack;
  
  my $engine_config = {
-    type   => 'KSx',
+    type   => 'Lucy',
     index  => ['path/to/your/index'],
     facets => {
         names       => [qw( topics people places orgs author )],

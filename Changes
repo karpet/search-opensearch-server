@@ -21,3 +21,6 @@ Revision history for Search-OpenSearch-Server
 0.07    26 Sept 2011
         * fix bug with setting Encoding (SWISH::Prog::Doc uses 'charset')
 
+0.08    29 Sept 2011
+        * change default type to 'Lucy'
+        * add conditional logger support
