@@ -3,7 +3,7 @@ package Search::OpenSearch::Server;
 use warnings;
 use strict;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 NAME
 

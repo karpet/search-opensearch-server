@@ -24,3 +24,7 @@ Revision history for Search-OpenSearch-Server
 0.08    29 Sept 2011
         * change default type to 'Lucy'
         * add conditional logger support
+
+0.09    22 Oct 2011
+        * use same params as Search::OpenSearch 0.15
+

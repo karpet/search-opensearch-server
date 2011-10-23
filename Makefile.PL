@@ -22,7 +22,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Test::More'         => 0,
         'Plack'              => 0,
-        'Search::OpenSearch' => 0.11,
+        'Search::OpenSearch' => 0.15,
         'JSON::XS'           => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
