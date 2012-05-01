@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 my %formats = (
     'XML'  => 'application/xml',
@@ -160,7 +160,7 @@ sub do_rest_api {
         };
         $doc->{url} =~ s,^/,,;    # strip leading /
 
-        if ( $req->logger ) {
+        if ( $req->can('logger') and $req->logger ) {
             $req->logger->( { level => 'debug', message => dump $doc } );
         }
 
