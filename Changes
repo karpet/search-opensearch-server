@@ -31,3 +31,5 @@ Revision history for Search-OpenSearch-Server
 0.10    30 April 2012
         * check for $req->can('logger') in addition to $req->logger
 
+0.11    xxx
+        * add log() method to Server::Plack for debugging ease
