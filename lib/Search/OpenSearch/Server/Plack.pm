@@ -44,7 +44,7 @@ sub setup_engine {
 sub log {
     my $self = shift;
     my $req  = $self->{_this_req};
-    if ( $req->can('logger') and $req->logger ) {
+    if ( $self->engine->debug and $req->can('logger') and $req->logger ) {
         $req->logger->( { level => 'debug', message => @_ } );
     }
 }
