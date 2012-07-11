@@ -142,7 +142,8 @@ sub do_rest_api {
 
     my $engine = $self->engine;
     if ( !$engine->can($method) ) {
-        $response->status(415);
+        $response->status(405);
+        $response->header( 'Allow' => 'GET, POST, PUT, DELETE' );
         $response->body(
             encode_json(
                 { success => 0, msg => "Unsupported method: $method" }
