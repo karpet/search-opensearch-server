@@ -34,3 +34,4 @@ Revision history for Search-OpenSearch-Server
 0.11    xxx
         * add log() method to Server::Plack for debugging ease
         * fix HTTP response code for unsupported REST methods
+        * add ExtJS response support

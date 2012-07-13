@@ -13,8 +13,9 @@ use JSON;
 our $VERSION = '0.11';
 
 my %formats = (
-    'XML'  => 'application/xml',
-    'JSON' => 'application/json',
+    'XML'   => 'application/xml',
+    'JSON'  => 'application/json',
+    'ExtJS' => 'application/json',
 );
 
 sub prepare_app {
@@ -35,7 +36,11 @@ sub setup_engine {
         #warn "[$$] engine created";
 
         $self->engine(
-            Search::OpenSearch->engine( %{ $self->engine_config } ) );
+            Search::OpenSearch->engine(
+                logger => $self,
+                %{ $self->engine_config },
+            )
+        );
         return 1;
     }
     croak "engine() or engine_config() required";
@@ -44,8 +49,10 @@ sub setup_engine {
 sub log {
     my $self = shift;
     my $req  = $self->{_this_req};
-    if ( $self->engine->debug and $req->can('logger') and $req->logger ) {
-        $req->logger->( { level => 'debug', message => @_ } );
+    if ( $req->can('logger') and $req->logger ) {
+        for (@_) {
+            $req->logger->( { level => 'debug', message => $_ } );
+        }
     }
 }
 
@@ -146,7 +153,9 @@ sub do_rest_api {
         $response->header( 'Allow' => 'GET, POST, PUT, DELETE' );
         $response->body(
             encode_json(
-                { success => 0, msg => "Unsupported method: $method" }
+                {   success => 0,
+                    msg     => "Unsupported method: $method",
+                }
             )
         );
     }
