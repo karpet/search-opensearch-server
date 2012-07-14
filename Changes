@@ -35,3 +35,4 @@ Revision history for Search-OpenSearch-Server
         * add log() method to Server::Plack for debugging ease
         * fix HTTP response code for unsupported REST methods
         * add ExtJS response support
+        * fix missing 'r' param support

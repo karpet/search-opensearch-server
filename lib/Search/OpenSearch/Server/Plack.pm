@@ -101,7 +101,7 @@ sub do_search {
         $response = $self->handle_no_query($response);
     }
     else {
-        for my $param (qw( b q s o p h c L f format u t )) {
+        for my $param (qw( b q s o p h c L f format u t r )) {
             $args{$param} = $params->{$param};
         }
 
