@@ -13,9 +13,8 @@ use JSON;
 our $VERSION = '0.11';
 
 my %formats = (
-    'XML'   => 'application/xml',
-    'JSON'  => 'application/json',
-    'ExtJS' => 'application/json',
+    'XML'  => 1,
+    'JSON' => 1,
 );
 
 sub prepare_app {
@@ -129,7 +128,7 @@ sub do_search {
         else {
             $search_response->debug(1) if $params->{debug};
             $response->status(200);
-            $response->content_type( $formats{ $args{format} } );
+            $response->content_type( $search_response->content_type );
             $response->body("$search_response");
         }
 
@@ -213,7 +212,8 @@ sub do_rest_api {
                 $rest->{success} = 0;
             }
             $response->status( $rest->{code} );
-            $response->content_type( $formats{'JSON'} );
+            $response->content_type(
+                Search::OpenSearch::Response::JSON->content_type );
             $response->body( encode_json($rest) );
 
             #dump($response);
