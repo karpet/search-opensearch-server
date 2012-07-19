@@ -36,3 +36,6 @@ Revision history for Search-OpenSearch-Server
         * fix HTTP response code for unsupported REST methods
         * add ExtJS response support
         * fix missing 'r' param support
+
+0.12    xxx
+        * use content_type from Response class

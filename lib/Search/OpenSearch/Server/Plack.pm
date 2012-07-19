@@ -10,7 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 my %formats = (
     'XML'  => 1,
