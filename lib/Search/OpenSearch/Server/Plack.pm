@@ -9,6 +9,7 @@ use Plack::Request;
 use Plack::Util::Accessor qw( engine engine_config );
 use Data::Dump qw( dump );
 use JSON;
+use Scalar::Util qw( weaken );
 
 our $VERSION = '0.12';
 
@@ -61,6 +62,7 @@ sub call {
 
     # stash this request object for log() to work
     $self->{_this_req} = $req;
+    weaken( $self->{_this_req} );
 
     my $path = $req->path;
     if ( $req->method eq 'GET' and length $path == 1 ) {
