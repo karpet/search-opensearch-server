@@ -39,3 +39,6 @@ Revision history for Search-OpenSearch-Server
 
 0.12    xxx
         * use content_type from Response class
+        * switch tests to use Lucy
+        * fix mem leak introduced by logger fix in 0.11
+
