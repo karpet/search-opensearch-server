@@ -56,7 +56,8 @@ SKIP: {
                 is( $results->{title}, qq/OpenSearch Results/, "got title" );
             }
         );
+        Search::OpenSearch::Response->clear_attributes();
     }
-    '<', 1, "new parser";
+    '<', 1, "no mem leaks";
 
 }
