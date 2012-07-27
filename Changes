@@ -37,8 +37,8 @@ Revision history for Search-OpenSearch-Server
         * add ExtJS response support
         * fix missing 'r' param support
 
-0.12    xxx
+0.12    26 July 2012
         * use content_type from Response class
         * switch tests to use Lucy
         * fix mem leak introduced by logger fix in 0.11
-
+        * switch to Module::Install

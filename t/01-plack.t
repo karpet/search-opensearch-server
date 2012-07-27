@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Test::More tests => 13;
 use Data::Dump qw( dump );
-use JSON::XS;
+use JSON;
 
 SKIP: {
 
@@ -39,6 +39,8 @@ SKIP: {
             my $cb  = shift;
             my $req = HTTP::Request->new( GET => 'http://localhost/?q=test' );
             my $res = $cb->($req);
+
+            #diag( $res->content );
             ok( my $results = decode_json( $res->content ),
                 "decode_json response" );
             is( $results->{query}, "test", "query param returned" );
