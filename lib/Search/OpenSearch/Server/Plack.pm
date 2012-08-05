@@ -14,8 +14,9 @@ use Scalar::Util qw( weaken );
 our $VERSION = '0.12';
 
 my %formats = (
-    'XML'  => 1,
-    'JSON' => 1,
+    'XML'   => 1,
+    'JSON'  => 1,
+    'ExtJS' => 1,
 );
 
 sub prepare_app {
@@ -114,9 +115,9 @@ sub do_search {
             $args{'p'} = $params->{limit};
         }
 
-        $args{format} = uc( $args{'t'} || $args{format} || 'JSON' );
-        if ( !exists $formats{ $args{format} } ) {
-            $self->log("bad format $args{format} -- using JSON");
+        $args{t} ||= $args{format} || 'JSON';
+        if ( !exists $formats{ $args{t} } ) {
+            $self->log("bad format $args{t} -- using JSON");
             $args{format} = 'JSON';
         }
 
