@@ -42,3 +42,6 @@ Revision history for Search-OpenSearch-Server
         * switch tests to use Lucy
         * fix mem leak introduced by logger fix in 0.11
         * switch to Module::Install
+
+0.13    xxx
+

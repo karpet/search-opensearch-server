@@ -11,7 +11,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Scalar::Util qw( weaken );
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 my %formats = (
     'XML'   => 1,
