@@ -6,7 +6,7 @@ use base qw( Plack::Middleware );
 use Carp;
 use Search::OpenSearch;
 use Plack::Request;
-use Plack::Util::Accessor qw( engine engine_config );
+use Plack::Util::Accessor qw( engine engine_config stats_logger );
 use Data::Dump qw( dump );
 use JSON;
 use Scalar::Util qw( weaken );
@@ -123,6 +123,10 @@ sub do_search {
 
         my $search_response = $self->engine->search(%args);
 
+        if ( $self->stats_logger ) {
+            $self->stats_logger->log( $req, $search_response );
+        }
+
         if ( !$search_response ) {
             $response->status(500);
             $response->content_type('text/plain');
@@ -207,6 +211,10 @@ sub do_rest_api {
             # call the REST method
             my $rest = $engine->$method($arg);
 
+            if ( $self->stats_logger ) {
+                $self->stats_logger->log( $req, $rest );
+            }
+
             # set up the response
             if ( $rest->{code} =~ m/^2/ ) {
                 $rest->{success} = 1;
@@ -253,7 +261,8 @@ Search::OpenSearch::Server::Plack - serve OpenSearch results with Plack
  };
 
  my $app = Search::OpenSearch::Server::Plack->new( 
-    engine_config => $engine_config
+    engine_config => $engine_config,
+    stats_logger  => MyStats->new(),
  );
 
  builder {
@@ -270,6 +279,30 @@ Search::OpenSearch::Server::Plack is a L<Plack::Middleware> application.
 This module implements a HTTP-ready L<Search::OpenSearch> server using L<Plack>.
 
 =head1 METHODS
+
+=head2 new( I<params> )
+
+Inherits from Plack::Middleware. I<params> can be:
+
+=over
+
+=item engine
+
+A Search::OpenSearch::Engine instance. Either this or B<engine_config> is required.
+
+=item engine_config
+
+A hashref passed to the Search::OpenSearch->engine method.
+Either this or B<engine> is required.
+
+=item stats_logger
+
+An object that implements at least one method called B<log>. The object's
+B<log> method is invoked with 2 arguments: the Plack::Request object,
+and either the Search::OpenSearch::Response object or the REST response
+hashref, on each request.
+
+=back
 
 =head2 call
 

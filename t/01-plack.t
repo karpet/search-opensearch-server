@@ -1,9 +1,27 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 13;
+use Test::More tests => 17;
 use Data::Dump qw( dump );
 use JSON;
+
+{
+
+    package MyStats;
+
+    sub new {
+        return bless {}, shift;
+    }
+
+    sub log {
+        my ( $self, $req, $resp ) = @_;
+        Test::More::ok( ref $resp, "response is a ref" );
+
+        #Test::More::diag( Data::Dump::dump $resp );
+
+    }
+
+}
 
 SKIP: {
 
@@ -30,7 +48,8 @@ SKIP: {
             index  => [$index_path],
             facets => { names => [qw( topics people places orgs author )], },
             fields => [qw( topics people places orgs author )],
-        }
+        },
+        stats_logger => MyStats->new(),
     );
 
     test_psgi(
