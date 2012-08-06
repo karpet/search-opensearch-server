@@ -44,4 +44,6 @@ Revision history for Search-OpenSearch-Server
         * switch to Module::Install
 
 0.13    xxx
+        * add stats_logger support
+        * add build_time to REST methods response
 

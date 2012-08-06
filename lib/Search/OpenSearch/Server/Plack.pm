@@ -10,6 +10,7 @@ use Plack::Util::Accessor qw( engine engine_config stats_logger );
 use Data::Dump qw( dump );
 use JSON;
 use Scalar::Util qw( weaken );
+use Time::HiRes qw( time );
 
 our $VERSION = '0.13';
 
@@ -148,10 +149,11 @@ sub do_search {
 sub do_rest_api {
     my ( $self, $req ) = @_;
 
-    my %args     = ();
-    my $params   = $req->parameters;
-    my $response = $req->new_response;
-    my $method   = $req->method;
+    my $start_time = time();
+    my %args       = ();
+    my $params     = $req->parameters;
+    my $response   = $req->new_response;
+    my $method     = $req->method;
 
     my $engine = $self->engine;
     if ( !$engine->can($method) ) {
@@ -210,6 +212,9 @@ sub do_rest_api {
 
             # call the REST method
             my $rest = $engine->$method($arg);
+
+            my $build_time = sprintf( "%0.5f", time() - $start_time );
+            $rest->{build_time} = $build_time;
 
             if ( $self->stats_logger ) {
                 $self->stats_logger->log( $req, $rest );

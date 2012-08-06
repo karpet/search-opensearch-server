@@ -28,15 +28,15 @@ SKIP: {
     my $index_path = $ENV{OPENSEARCH_INDEX};
     if ( !defined $index_path or !-d $index_path ) {
         diag("set OPENSEARCH_INDEX to valid path to test Plack with Lucy");
-        skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 13;
+        skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 17;
     }
     eval "use Plack::Test";
     if ($@) {
-        skip "Plack::Test not available", 13;
+        skip "Plack::Test not available", 17;
     }
     eval "use Search::OpenSearch::Engine::Lucy";
     if ($@) {
-        skip "Search::OpenSearch::Engine::Lucy not available", 13;
+        skip "Search::OpenSearch::Engine::Lucy not available", 17;
     }
 
     require Search::OpenSearch::Server::Plack;
