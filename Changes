@@ -46,4 +46,4 @@ Revision history for Search-OpenSearch-Server
 0.13    xxx
         * add stats_logger support
         * add build_time to REST methods response
-
+        * add better exception handling so that something use-able is returned
