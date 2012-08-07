@@ -128,10 +128,24 @@ sub do_search {
             $self->stats_logger->log( $req, $search_response );
         }
 
-        if ( !$search_response ) {
+        my $errmsg;
+        if ( $@ or $search_response->error ) {
+            $errmsg = "$@" || $search_response->error;
+            warn $errmsg;    # log it
+
+            # trim the return to hide file and linenum
+            $errmsg =~ s/ at \/[\w\/\.]+ line \d+\.?.*$//s;
+
+            # reset
+            $self->engine->error(undef);
+            $search_response->error(undef);
+        }
+
+        if ( !$search_response or defined $errmsg ) {
+            $errmsg ||= 'Internal error';
             $response->status(500);
-            $response->content_type('text/plain');
-            $response->body("Internal error");
+            $response->content_type('application/json');
+            $response->body(qq/{success:0, error:"$errmsg"}/);
         }
         else {
             $search_response->debug(1) if $params->{debug};
