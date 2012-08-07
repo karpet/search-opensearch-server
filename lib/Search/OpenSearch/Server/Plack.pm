@@ -122,26 +122,39 @@ sub do_search {
             $args{format} = 'JSON';
         }
 
-        my $search_response = $self->engine->search(%args);
+        my $search_response;
+        eval {
+            $search_response = $self->engine->search(%args);
 
-        if ( $self->stats_logger ) {
-            $self->stats_logger->log( $req, $search_response );
-        }
+            if ( $self->stats_logger ) {
+                $self->stats_logger->log( $req, $search_response );
+            }
+        };
 
         my $errmsg;
-        if ( $@ or $search_response->error ) {
-            $errmsg = "$@" || $search_response->error;
-            warn $errmsg;    # log it
+        if ( $@ or ( $search_response and $search_response->error ) ) {
+            $errmsg = "$@";
+            if ( !$errmsg and $search_response and $search_response->error ) {
+                $errmsg = $search_response->error;
+            }
+            elsif ( !$errmsg and $self->engine->error ) {
+                $errmsg = $self->engine->error;
+            }
+
+            # log it
+            if ( $req->can('logger') and $req->logger ) {
+                $req->logger->( { level => 'error', message => $errmsg } );
+            }
 
             # trim the return to hide file and linenum
             $errmsg =~ s/ at \/[\w\/\.]+ line \d+\.?.*$//s;
 
-            # reset
+            # clear errors
             $self->engine->error(undef);
             $search_response->error(undef);
         }
 
-        if ( !$search_response or defined $errmsg ) {
+        if ( !$search_response or $errmsg ) {
             $errmsg ||= 'Internal error';
             $response->status(500);
             $response->content_type('application/json');
