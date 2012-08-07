@@ -43,7 +43,7 @@ Revision history for Search-OpenSearch-Server
         * fix mem leak introduced by logger fix in 0.11
         * switch to Module::Install
 
-0.13    xxx
+0.13    6 Aug 2012
         * add stats_logger support
         * add build_time to REST methods response
         * add better exception handling so that something use-able is returned
