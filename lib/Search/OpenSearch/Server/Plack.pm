@@ -12,7 +12,7 @@ use JSON;
 use Scalar::Util qw( weaken );
 use Time::HiRes qw( time );
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 my %formats = (
     'XML'   => 1,
@@ -158,7 +158,8 @@ sub do_search {
             $errmsg ||= 'Internal error';
             $response->status(500);
             $response->content_type('application/json');
-            $response->body(qq/{success:0, error:"$errmsg"}/);
+            $response->body(
+                encode_json( { success => 0, error => $errmsg } ) );
         }
         else {
             $search_response->debug(1) if $params->{debug};

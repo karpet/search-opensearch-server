@@ -47,3 +47,7 @@ Revision history for Search-OpenSearch-Server
         * add stats_logger support
         * add build_time to REST methods response
         * add better exception handling so that something use-able is returned
+
+0.14    9 Aug 2012
+        * fix JSON syntax on server error response
+
