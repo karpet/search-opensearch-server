@@ -60,6 +60,10 @@ sub do_search {
             $args{format} = 'JSON';
         }
 
+        if ( !$self->engine ) {
+            croak "engine() is undefined";
+        }
+
         my $search_response;
         eval {
             $search_response = $self->engine->search(%args);
@@ -120,6 +124,10 @@ sub do_rest_api {
     my $params     = $request->parameters;
     my $method     = $request->method;
     my $engine     = $self->engine;
+
+    if ( !$engine ) {
+        croak "engine() is undefined";
+    }
 
     if ( !$engine->can($method) ) {
         $response->status(405);
