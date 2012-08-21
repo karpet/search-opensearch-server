@@ -54,7 +54,7 @@ Revision history for Search-OpenSearch-Server
 0.15    20 Aug 2012
         * add Search::OpenSearch::Result class to make REST results into objects
 
-0.16    xxx
+0.16    21 Aug 2012
         * major refactor to move most code and logic into the Server base class which
           formerly had been empty. The Plack subclass now implements only
           those methods specific to a Plack::Component.
