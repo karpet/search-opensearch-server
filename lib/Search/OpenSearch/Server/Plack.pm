@@ -5,6 +5,7 @@ use strict;
 use base qw( Plack::Middleware );
 use Carp;
 use Search::OpenSearch;
+use Search::OpenSearch::Result;
 use Plack::Request;
 use Plack::Util::Accessor qw( engine engine_config stats_logger );
 use Data::Dump qw( dump );
@@ -12,7 +13,7 @@ use JSON;
 use Scalar::Util qw( weaken );
 use Time::HiRes qw( time );
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 my %formats = (
     'XML'   => 1,
@@ -151,7 +152,7 @@ sub do_search {
 
             # clear errors
             $self->engine->error(undef);
-            $search_response->error(undef);
+            $search_response->error(undef) if $search_response;
         }
 
         if ( !$search_response or $errmsg ) {
@@ -188,9 +189,10 @@ sub do_rest_api {
         $response->status(405);
         $response->header( 'Allow' => 'GET, POST, PUT, DELETE' );
         $response->body(
-            encode_json(
+            Search::OpenSearch::Result->new(
                 {   success => 0,
                     msg     => "Unsupported method: $method",
+                    code    => 405,
                 }
             )
         );
@@ -225,9 +227,10 @@ sub do_rest_api {
             #warn "invalid url";
             $response->status(400);
             $response->body(
-                encode_json(
+                Search::OpenSearch::Result->new(
                     {   success => 0,
                         msg     => "Invalid or missing document URI",
+                        code    => 400,
                     }
                 )
             );
@@ -240,13 +243,7 @@ sub do_rest_api {
 
             # call the REST method
             my $rest = $engine->$method($arg);
-
-            my $build_time = sprintf( "%0.5f", time() - $start_time );
-            $rest->{build_time} = $build_time;
-
-            if ( $self->stats_logger ) {
-                $self->stats_logger->log( $req, $rest );
-            }
+            $rest->{build_time} = sprintf( "%0.5f", time() - $start_time );
 
             # set up the response
             if ( $rest->{code} =~ m/^2/ ) {
@@ -255,10 +252,17 @@ sub do_rest_api {
             else {
                 $rest->{success} = 0;
             }
-            $response->status( $rest->{code} );
+
+            my $rest_resp = Search::OpenSearch::Result->new(%$rest);
+
+            if ( $self->stats_logger ) {
+                $self->stats_logger->log( $req, $rest_resp );
+            }
+
+            $response->status( $rest_resp->code );
             $response->content_type(
                 Search::OpenSearch::Response::JSON->content_type );
-            $response->body( encode_json($rest) );
+            $response->body("$rest_resp");
 
             #dump($response);
         }

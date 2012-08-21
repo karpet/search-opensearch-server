@@ -51,3 +51,6 @@ Revision history for Search-OpenSearch-Server
 0.14    9 Aug 2012
         * fix JSON syntax on server error response
 
+0.15    20 Aug 2012
+        * add Search::OpenSearch::Result class to make REST results into objects
+

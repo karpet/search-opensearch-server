@@ -1,20 +1,84 @@
-package Search::OpenSearch::Server;
-
-use warnings;
+package Search::OpenSearch::Result;
 use strict;
+use warnings;
+use JSON;
+use base qw( Rose::ObjectX::CAF );
+use overload
+    '""'     => sub { $_[0]->stringify; },
+    'bool'   => sub {1},
+    fallback => 1;
 
 our $VERSION = '0.15';
 
+__PACKAGE__->mk_accessors(
+    qw(
+        build_time
+        search_time
+        doc
+        code
+        success
+        msg
+        total
+        )
+);
+
+sub stringify {
+    my $self = shift;
+
+    #Data::Dump::dump($self);
+    my $json = encode_json( {%$self} );
+
+    #warn "json=$json";
+    return $json;
+}
+
+1;
+
+__END__
+
 =head1 NAME
 
-Search::OpenSearch::Server - serve OpenSearch results
+Search::OpenSearch::Result - REST action response
+
+=head1 SYNOPSIS
+
+ my $server = Search::OpenSearch::Server::Plack->new();
+ my $result = $server->do_rest_api( Plack::Request->new( $env ) );
+ print $result;
 
 =head1 DESCRIPTION
 
-Search::OpenSearch::Server is a namespace holder only.
-See specific implementations like Search::OpenSearch::Server::Plack
-for example.
- 
+This class is used internally to represent the result of a REST
+API action.
+
+=head1 METHODS
+
+=head2 new( I<attrs> )
+
+I<attrs> are key/value pairs with keys including:
+
+=over
+
+=item build_time
+
+=item search_time
+
+=item code
+
+=item doc
+
+=item success
+
+=item msg
+
+=item total
+
+=back
+
+=head2 stringify
+
+Returns the object as a JSON-encoded string.
+
 =head1 AUTHOR
 
 Peter Karman, C<< <karman at cpan.org> >>
@@ -56,7 +120,7 @@ L<http://search.cpan.org/dist/Search-OpenSearch-Server/>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2010 Peter Karman.
+Copyright 2012 Peter Karman.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
@@ -65,5 +129,3 @@ by the Free Software Foundation; or the Artistic License.
 See http://dev.perl.org/licenses/ for more information.
 
 =cut
-
-1;

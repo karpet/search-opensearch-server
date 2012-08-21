@@ -4,6 +4,7 @@ inc/Module/Install/Base.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/MakeMaker.pm
 inc/Module/Install/Metadata.pm
+lib/Search/OpenSearch/Result.pm
 lib/Search/OpenSearch/Server.pm
 lib/Search/OpenSearch/Server/Plack.pm
 Makefile.PL
