@@ -2,24 +2,17 @@ package Search::OpenSearch::Server::Plack;
 
 use warnings;
 use strict;
-use base qw( Plack::Middleware );
+use base qw( Search::OpenSearch::Server Plack::Component );
 use Carp;
 use Search::OpenSearch;
 use Search::OpenSearch::Result;
 use Plack::Request;
-use Plack::Util::Accessor qw( engine engine_config stats_logger );
 use Data::Dump qw( dump );
 use JSON;
 use Scalar::Util qw( weaken );
 use Time::HiRes qw( time );
 
-our $VERSION = '0.15';
-
-my %formats = (
-    'XML'   => 1,
-    'JSON'  => 1,
-    'ExtJS' => 1,
-);
+our $VERSION = '0.16';
 
 sub prepare_app {
     my $self = shift;
@@ -52,222 +45,51 @@ sub setup_engine {
 sub log {
     my $self = shift;
     my $req  = $self->{_this_req};
+    my $msg  = shift or croak "No logger message supplied";
+    my $lvl  = shift || 'debug';
     if ( $req->can('logger') and $req->logger ) {
-        for (@_) {
-            $req->logger->( { level => 'debug', message => $_ } );
-        }
+        $req->logger->( { level => $lvl, message => $msg } );
     }
 }
 
 sub call {
     my ( $self, $env ) = @_;
-    my $req = Plack::Request->new($env);
+    my $request = Plack::Request->new($env);
 
     # stash this request object for log() to work
-    $self->{_this_req} = $req;
+    $self->{_this_req} = $request;
     weaken( $self->{_this_req} );
 
-    my $path = $req->path;
-    if ( $req->method eq 'GET' and length $path == 1 ) {
-        return $self->do_search($req);
+    my $path = $request->path;
+    if ( $request->method eq 'GET' and length $path == 1 ) {
+        return $self->do_search( $request, $request->new_response() );
     }
-    elsif ( $req->method eq 'GET'
+    elsif ( $request->method eq 'GET'
         and $self->engine->has_rest_api )
     {
-        return $self->do_rest_api($req);
+        return $self->do_rest_api( $request, $request->new_response() );
     }
-    if ( !$self->engine->has_rest_api && $req->method eq 'POST' ) {
-        return $self->do_search($req);
+    if ( !$self->engine->has_rest_api && $request->method eq 'POST' ) {
+        return $self->do_search( $request, $request->new_response() );
     }
     elsif ( $self->engine->has_rest_api ) {
-        return $self->do_rest_api($req);
+        return $self->do_rest_api( $request, $request->new_response() );
     }
     else {
-        return $self->handle_no_query( $req->new_response )->finalize();
+        return $self->handle_no_query( $request, $request->new_response() )
+            ->finalize();
     }
-}
-
-sub handle_no_query {
-    my ( $self, $response ) = @_;
-    $response->status(400);
-    $response->content_type('text/plain');
-    $response->body("'q' required");
-    return $response;
 }
 
 sub do_search {
-    my ( $self, $req ) = @_;
-    my %args     = ();
-    my $params   = $req->parameters;
-    my $response = $req->new_response;
-    my $query    = $params->{q};
-    if ( !defined $query ) {
-        $response = $self->handle_no_query($response);
-    }
-    else {
-        for my $param (qw( b q s o p h c L f format u t r )) {
-            $args{$param} = $params->{$param};
-        }
-
-        # map some Ext param names to Engine API
-        if ( defined $params->{start} ) {
-            $args{'o'} = $params->{start};
-        }
-        if ( defined $params->{limit} ) {
-            $args{'p'} = $params->{limit};
-        }
-
-        $args{t} ||= $args{format} || 'JSON';
-        if ( !exists $formats{ $args{t} } ) {
-            $self->log("bad format $args{t} -- using JSON");
-            $args{format} = 'JSON';
-        }
-
-        my $search_response;
-        eval {
-            $search_response = $self->engine->search(%args);
-
-            if ( $self->stats_logger ) {
-                $self->stats_logger->log( $req, $search_response );
-            }
-        };
-
-        my $errmsg;
-        if ( $@ or ( $search_response and $search_response->error ) ) {
-            $errmsg = "$@";
-            if ( !$errmsg and $search_response and $search_response->error ) {
-                $errmsg = $search_response->error;
-            }
-            elsif ( !$errmsg and $self->engine->error ) {
-                $errmsg = $self->engine->error;
-            }
-
-            # log it
-            if ( $req->can('logger') and $req->logger ) {
-                $req->logger->( { level => 'error', message => $errmsg } );
-            }
-
-            # trim the return to hide file and linenum
-            $errmsg =~ s/ at \/[\w\/\.]+ line \d+\.?.*$//s;
-
-            # clear errors
-            $self->engine->error(undef);
-            $search_response->error(undef) if $search_response;
-        }
-
-        if ( !$search_response or $errmsg ) {
-            $errmsg ||= 'Internal error';
-            $response->status(500);
-            $response->content_type('application/json');
-            $response->body(
-                encode_json( { success => 0, error => $errmsg } ) );
-        }
-        else {
-            $search_response->debug(1) if $params->{debug};
-            $response->status(200);
-            $response->content_type( $search_response->content_type );
-            $response->body("$search_response");
-        }
-
-    }
-
+    my ( $self, $req, $response ) = @_;
+    $self->SUPER::do_search( $req, $response );
     return $response->finalize();
 }
 
-# only supports JSON for now.
 sub do_rest_api {
-    my ( $self, $req ) = @_;
-
-    my $start_time = time();
-    my %args       = ();
-    my $params     = $req->parameters;
-    my $response   = $req->new_response;
-    my $method     = $req->method;
-
-    my $engine = $self->engine;
-    if ( !$engine->can($method) ) {
-        $response->status(405);
-        $response->header( 'Allow' => 'GET, POST, PUT, DELETE' );
-        $response->body(
-            Search::OpenSearch::Result->new(
-                {   success => 0,
-                    msg     => "Unsupported method: $method",
-                    code    => 405,
-                }
-            )
-        );
-    }
-    else {
-
-        #warn "method==$method";
-
-        # defer to explicit headers over implicit values
-        my $doc = {
-            url => ( $req->header('X-SOS-Content-Location') || $req->path ),
-            modtime => ( $req->header('X-SOS-Last-Modified') || time() ),
-            content => $req->content,
-            type =>
-                ( $req->header('X-SOS-Content-Type') || $req->content_type ),
-            size    => $req->content_length,
-            charset => (
-                       $req->header('X-SOS-Encoding')
-                    || $req->content_encoding
-                    || 'UTF-8'
-            ),
-            parser => ( $req->header('X-SOS-Parser-Type') || undef ),
-        };
-        $doc->{url} =~ s,^/,,;    # strip leading /
-
-        $self->log( dump $doc );
-
-        #warn dump $doc;
-
-        if ( $doc->{url} eq '/' or $doc->{url} eq "" ) {
-
-            #warn "invalid url";
-            $response->status(400);
-            $response->body(
-                Search::OpenSearch::Result->new(
-                    {   success => 0,
-                        msg     => "Invalid or missing document URI",
-                        code    => 400,
-                    }
-                )
-            );
-        }
-        else {
-            my $arg = $doc;
-            if ( $method eq 'GET' or $method eq 'DELETE' ) {
-                $arg = $doc->{url};
-            }
-
-            # call the REST method
-            my $rest = $engine->$method($arg);
-            $rest->{build_time} = sprintf( "%0.5f", time() - $start_time );
-
-            # set up the response
-            if ( $rest->{code} =~ m/^2/ ) {
-                $rest->{success} = 1;
-            }
-            else {
-                $rest->{success} = 0;
-            }
-
-            my $rest_resp = Search::OpenSearch::Result->new(%$rest);
-
-            if ( $self->stats_logger ) {
-                $self->stats_logger->log( $req, $rest_resp );
-            }
-
-            $response->status( $rest_resp->code );
-            $response->content_type(
-                Search::OpenSearch::Response::JSON->content_type );
-            $response->body("$rest_resp");
-
-            #dump($response);
-        }
-    }
-
+    my ( $self, $req, $response ) = @_;
+    $self->SUPER::do_rest_api( $req, $response );
     return $response->finalize();
 }
 
@@ -300,7 +122,7 @@ Search::OpenSearch::Server::Plack - serve OpenSearch results with Plack
  my $app = Search::OpenSearch::Server::Plack->new( 
     engine_config => $engine_config,
     stats_logger  => MyStats->new(),
- );
+ )->to_app;
 
  builder {
     mount '/' => $app;
@@ -312,14 +134,17 @@ Search::OpenSearch::Server::Plack - serve OpenSearch results with Plack
  
 =head1 DESCRIPTION
 
-Search::OpenSearch::Server::Plack is a L<Plack::Middleware> application.
+Search::OpenSearch::Server::Plack is a L<Plack::Component> application.
 This module implements a HTTP-ready L<Search::OpenSearch> server using L<Plack>.
 
 =head1 METHODS
 
+This class inherits from Search::OpenSearch::Server and Plack::Component. Only
+new or overridden methods are documented here.
+
 =head2 new( I<params> )
 
-Inherits from Plack::Middleware. I<params> can be:
+Inherits from Plack::Component. I<params> can be:
 
 =over
 
@@ -346,10 +171,9 @@ hashref, on each request.
 Implements the required Middleware method. The default behavior is to
 instantiate a L<Plack::Request> and pass it into do_search().
 
-=head2 log( I<msg> )
+=head2 log( I<msg>, I<level> )
 
 Passes I<msg> on to the Plack::Request->logger object, if any.
-The logger level is hardcoded at 'debug'.
 
 =head2 prepare_app
 
@@ -360,41 +184,14 @@ Calls setup_engine().
 Instantiates the Search::OpenSearch::Engine, if necessary, using
 the values set in engine_config().
 
-=head2 do_search( I<request> )
+=head2 do_rest_api( I<request>, I<response> )
 
-The meat of the application. This method checks params in I<request>,
-mapping them to the Search::OpenSearch::Engine API.
+Overrides base Server method to call finalize() on I<response>.
 
-Returns a Plack::Reponse, finalize()d.
+=head2 do_search( I<request>, I<response> )
 
-=head2 do_rest_api( I<request> )
+Overrides base Server method to call finalize() on I<response>.
 
-If the Engine used supports has_rest_api(), this method calls
-the appropriate HTTP method on the Engine object.
-
-The following HTTP headers are supported for explicitly setting
-the indexer behavior:
-
-=over
-
-=item X-SOS-Content-Location
-
-=item X-SOS-Last-Modified
-
-=item X-SOS-Parser-Type
-
-=item X-SOS-Content-Type
-
-=item X-SOS-Encoding
-
-=back
-
-=head2 handle_no_query( I<response> )
-
-If no 'q' param is present in the Plack::Request, this method is called.
-The default behavior is to set a 400 (bad request) with error message.
-You can override it to behave more kindly.
- 
 =head1 AUTHOR
 
 Peter Karman, C<< <karman at cpan.org> >>
