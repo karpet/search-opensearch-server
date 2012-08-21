@@ -75,7 +75,7 @@ sub do_search {
             if ( !$errmsg and $search_response and $search_response->error ) {
                 $errmsg = $search_response->error;
             }
-            elsif ( !$errmsg and $self->engine->error ) {
+            elsif ( !$errmsg and $self->engine and $self->engine->error ) {
                 $errmsg = $self->engine->error;
             }
 
@@ -86,7 +86,7 @@ sub do_search {
             $errmsg =~ s/ at \/[\w\/\.]+ line \d+\.?.*$//s;
 
             # clear errors
-            $self->engine->error(undef);
+            $self->engine->error(undef) if $self->engine;
             $search_response->error(undef) if $search_response;
         }
 
