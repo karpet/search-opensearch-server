@@ -60,3 +60,8 @@ Revision history for Search-OpenSearch-Server
           those methods specific to a Plack::Component.
         * fix some undefined object errors 
 
+0.17    xxx
+        * use Engine->get_allowed_rest_methods instead of hardcoded list
+        * fix security hole where arbitrary Perl methods could be called via HTTP
+          like RPC.
+
