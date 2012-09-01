@@ -113,7 +113,7 @@ sub do_search {
     return $response;
 }
 
-# only supports JSON for now.
+# only supports JSON responses for now.
 sub do_rest_api {
     my $self     = shift;
     my $request  = shift or croak "request required";
@@ -129,7 +129,7 @@ sub do_rest_api {
         croak "engine() is undefined";
     }
 
-    my @allowed_methods = $engine->get_allowed_rest_methods();
+    my @allowed_methods = $engine->get_allowed_http_methods();
 
     if (   !$engine->can($method)
         or !grep { $_ eq $method } @allowed_methods )
