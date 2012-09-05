@@ -87,7 +87,7 @@ sub do_search {
             $self->log( $errmsg, 'error' );
 
             # trim the return to hide file and linenum
-            $errmsg =~ s/ at \/[\w\/\.]+ line \d+\.?.*$//s;
+            $errmsg =~ s/ at [\w\/\.]+ line \d+\.?.*$//s;
 
             # clear errors
             $self->engine->error(undef) if $self->engine;
