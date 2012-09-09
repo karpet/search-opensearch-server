@@ -65,3 +65,5 @@ Revision history for Search-OpenSearch-Server
         * fix security hole where arbitrary Perl methods could be called via HTTP
           like RPC.
 
+0.18    xxx
+        * use Plack::Util::Accessor instead of Rose::ObjectX::CAF.

@@ -2,25 +2,21 @@ package Search::OpenSearch::Result;
 use strict;
 use warnings;
 use JSON;
-use base qw( Rose::ObjectX::CAF );
+use Plack::Util::Accessor qw(
+    build_time
+    search_time
+    doc
+    code
+    success
+    msg
+    total
+);
 use overload
     '""'     => sub { $_[0]->stringify; },
     'bool'   => sub {1},
     fallback => 1;
 
-our $VERSION = '0.17';
-
-__PACKAGE__->mk_accessors(
-    qw(
-        build_time
-        search_time
-        doc
-        code
-        success
-        msg
-        total
-        )
-);
+our $VERSION = '0.17_01';
 
 sub stringify {
     my $self = shift;
