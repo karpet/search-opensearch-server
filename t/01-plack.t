@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Data::Dump qw( dump );
 use JSON;
 
@@ -28,15 +28,15 @@ SKIP: {
     my $index_path = $ENV{OPENSEARCH_INDEX};
     if ( !defined $index_path or !-d $index_path ) {
         diag("set OPENSEARCH_INDEX to valid path to test Plack with Lucy");
-        skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 17;
+        skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 19;
     }
     eval "use Plack::Test";
     if ($@) {
-        skip "Plack::Test not available", 17;
+        skip "Plack::Test not available", 19;
     }
     eval "use Search::OpenSearch::Engine::Lucy";
     if ($@) {
-        skip "Search::OpenSearch::Engine::Lucy not available", 17;
+        skip "Search::OpenSearch::Engine::Lucy not available", 19;
     }
 
     require Search::OpenSearch::Server::Plack;
@@ -44,12 +44,11 @@ SKIP: {
 
     my $app = Search::OpenSearch::Server::Plack->new(
         engine_config => {
-            type   => 'Lucy',
-            index  => [$index_path],
-            facets => { names => [qw( topics people places orgs author )], },
-            fields => [qw( topics people places orgs author )],
+            type  => 'Lucy',
+            index => [$index_path],
         },
         stats_logger => MyStats->new(),
+        http_allow   => [qw( GET PUT DELETE )],    # no POST
     );
 
     test_psgi(
@@ -63,7 +62,7 @@ SKIP: {
             ok( my $results = decode_json( $res->content ),
                 "decode_json response" );
             is( $results->{query}, "test", "query param returned" );
-            cmp_ok( $results->{total}, '>', 1, "more than one hit" );
+            cmp_ok( $results->{total}, '>=', 1, ">= one hit" );
             ok( exists $results->{search_time}, "search_time key exists" );
             is( $results->{title}, qq/OpenSearch Results/, "got title" );
         }
@@ -127,7 +126,27 @@ SKIP: {
                 "decode content as JSON" );
 
             #dump $json;
-            is( $res->code, 204, "DELETE ok" );
+            is( $res->code, 200, "DELETE ok" );
+        }
+    );
+
+    test_psgi(
+        app    => $app,
+        client => sub {
+            my $cb = shift;
+            my $req
+                = HTTP::Request->new( POST => 'http://localhost/foo/bar' );
+            $req->content_type('application/xml');
+            $req->content('<doc><title>i am a test</title></doc>');
+            $req->content_length( length( $req->content ) );
+            my $res = $cb->($req);
+
+            #dump $res;
+            ok( my $json = decode_json( $res->content ),
+                "decode content as JSON" );
+
+            #dump $json;
+            is( $res->code, 405, "POST not allowed" );
         }
     );
 

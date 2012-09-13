@@ -3,7 +3,7 @@ package Search::OpenSearch::Server;
 use warnings;
 use strict;
 use Carp;
-use Plack::Util::Accessor qw( engine engine_config stats_logger );
+use Plack::Util::Accessor qw( engine engine_config stats_logger http_allow );
 use Search::OpenSearch;
 use Search::OpenSearch::Result;
 use Data::Dump qw( dump );
@@ -129,7 +129,22 @@ sub do_rest_api {
         croak "engine() is undefined";
     }
 
-    my @allowed_methods = $engine->get_allowed_http_methods();
+    my @engine_allowed_methods = $engine->get_allowed_http_methods();
+    my $server_allowed_methods = $self->http_allow()
+        || [@engine_allowed_methods];
+
+    # allowed HTTP methods is the intersection of
+    # what the server allows and what the engine allows
+    my @allowed_methods;
+    my %intersection;
+    for my $m ( @engine_allowed_methods, @$server_allowed_methods ) {
+        $intersection{$m}++;
+    }
+    for my $m ( keys %intersection ) {
+        if ( $intersection{$m} == 2 ) {
+            push @allowed_methods, $m;
+        }
+    }
 
     if (   !$engine->can($method)
         or !grep { $_ eq $method } @allowed_methods )
@@ -240,6 +255,34 @@ Search::OpenSearch::Server is an abstract base class with some
 basic methods defining server behavior.
 
 =head1 METHODS
+
+=head1 new
+
+The Search::OpenSearch::Server abstract class does not implement
+a constructor. Each subclass must do that.
+
+However, accessor/mutator methods are supported via Plack::Util::Accessor,
+and these should be set in the constructor.
+
+=over
+
+=item 
+
+engine
+
+=item
+
+engine_config
+
+=item
+
+stats_logger
+
+=item
+
+http_allow
+
+=back 
 
 =head2 do_search( I<request>, I<response> )
 

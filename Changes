@@ -67,3 +67,7 @@ Revision history for Search-OpenSearch-Server
 
 0.18    11 Sept 2012
         * use Plack::Util::Accessor instead of Rose::ObjectX::CAF.
+
+0.19    xxx
+        * add http_allow() method so that Server and Engine can defined allowed
+          HTTP methods independently, and the intersection is enforced.
