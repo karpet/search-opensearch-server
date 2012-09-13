@@ -10,7 +10,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 
-our $VERSION = '0.18_01';
+our $VERSION = '0.19';
 
 my %formats = (
     'XML'   => 1,
