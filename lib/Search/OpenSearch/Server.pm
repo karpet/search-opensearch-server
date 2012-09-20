@@ -10,12 +10,13 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 my %formats = (
     'XML'   => 1,
     'JSON'  => 1,
     'ExtJS' => 1,
+    'Tiny'  => 1,
 );
 
 sub log {
@@ -42,11 +43,34 @@ sub do_search {
         $self->handle_no_query( $request, $response );
     }
     else {
-        for my $param (qw( b q s o p h c L f format u t r )) {
+        for my $param (qw( b q s o p h c L f u t r x )) {
             $args{$param} = $params->{$param};
         }
 
-        # map some Ext param names to Engine API
+        # coerce some params to match Engine API
+        if ( defined $args{L} ) {
+            $args{L} = [ split( m/\|/, $args{L} ) ];
+        }
+
+        if ( exists $args{x} ) {
+            if ( ref $args{x} ) {
+
+                # ok
+            }
+            elsif ( !defined $args{x} or !length $args{x} ) {
+
+                # turn into empty array
+                # this effectively limits fields to built-ins.
+                $args{x} = [];
+            }
+            else {
+
+                # force array
+                $args{x} = [ $args{x} ];
+            }
+        }
+
+        # map some Ext param names
         if ( defined $params->{start} ) {
             $args{'o'} = $params->{start};
         }
@@ -54,7 +78,7 @@ sub do_search {
             $args{'p'} = $params->{limit};
         }
 
-        $args{t} ||= $args{format} || 'JSON';
+        $args{t} ||= $params->{format} || 'JSON';
         if ( !exists $formats{ $args{t} } ) {
             $self->log("bad format $args{t} -- using JSON");
             $args{format} = 'JSON';
