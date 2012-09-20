@@ -10,7 +10,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 
-our $VERSION = '0.20';
+our $VERSION = '0.20_01';
 
 my %formats = (
     'XML'   => 1,
@@ -48,10 +48,6 @@ sub do_search {
         }
 
         # coerce some params to match Engine API
-        if ( defined $args{L} ) {
-            $args{L} = [ split( m/\|/, $args{L} ) ];
-        }
-
         if ( exists $args{x} ) {
             if ( ref $args{x} ) {
 
