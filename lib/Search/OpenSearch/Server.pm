@@ -10,7 +10,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 
-our $VERSION = '0.20_01';
+our $VERSION = '0.21';
 
 my %formats = (
     'XML'   => 1,
@@ -44,8 +44,11 @@ sub do_search {
     }
     else {
         for my $param (qw( b q s o p h c L f u t r x )) {
+            next unless exists $params->{$param};
             $args{$param} = $params->{$param};
         }
+
+        #dump \%args;
 
         # coerce some params to match Engine API
         if ( exists $args{x} ) {
@@ -189,7 +192,8 @@ sub do_rest_api {
             url => (
                 $request->header('X-SOS-Content-Location') || $request->path
             ),
-            modtime => ( $request->header('X-SOS-Last-Modified') || CORE::time() ),
+            modtime =>
+                ( $request->header('X-SOS-Last-Modified') || CORE::time() ),
             content => $request->content,
             type    => (
                        $request->header('X-SOS-Content-Type')

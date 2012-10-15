@@ -12,7 +12,7 @@ use JSON;
 use Scalar::Util qw( weaken );
 use Time::HiRes qw( time );
 
-our $VERSION = '0.20_01';
+our $VERSION = '0.21';
 
 sub prepare_app {
     my $self = shift;
