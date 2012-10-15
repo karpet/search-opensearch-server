@@ -10,7 +10,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 
-our $VERSION = '0.20';
+our $VERSION = '0.20_01';
 
 my %formats = (
     'XML'   => 1,
@@ -193,7 +193,7 @@ sub do_rest_api {
             url => (
                 $request->header('X-SOS-Content-Location') || $request->path
             ),
-            modtime => ( $request->header('X-SOS-Last-Modified') || time() ),
+            modtime => ( $request->header('X-SOS-Last-Modified') || CORE::time() ),
             content => $request->content,
             type    => (
                        $request->header('X-SOS-Content-Type')

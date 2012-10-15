@@ -76,3 +76,6 @@ Revision history for Search-OpenSearch-Server
         * add support for 'x' param in SOS 0.21.
         * add support for Tiny response in SOS 0.21.
         * clean up some edge cases in internal request param parsing.
+
+0.21    xxx
+        * use CORE::time() instead of HiRes for default mtime
