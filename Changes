@@ -79,3 +79,4 @@ Revision history for Search-OpenSearch-Server
 
 0.21    xxx
         * use CORE::time() instead of HiRes for default mtime
+
