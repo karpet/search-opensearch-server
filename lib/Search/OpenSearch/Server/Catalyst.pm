@@ -39,22 +39,24 @@ sub log {
     my $app  = $self->_app;
     my $msg  = shift or croak "No logger message supplied";
     my $lvl  = shift || 'debug';
-    $req->log->$lvl($msg);
+    $app->log->$lvl($msg);
 }
 
 sub search : Local {
-    my ( $self, $c ) = @_;
+    my ( $self, $c, @args ) = @_;
+    $c->log->debug("found search() method") if $c->debug;
     my $request  = $c->request;
     my $response = $c->response;
 
-    my $path = $request->path;
-    if ( $request->method eq 'GET' and length $path == 1 ) {
+    my $path = join( '/', @args );
+    warn "path=$path";
+    if ( $request->method eq 'GET' and !length $path ) {
         return $self->do_search( $request, $response );
     }
     elsif ( $request->method eq 'GET'
         and $self->engine->has_rest_api )
     {
-        return $self->do_rest_api( $request, $response () );
+        return $self->do_rest_api( $request, $response );
     }
     if ( !$self->engine->has_rest_api && $request->method eq 'POST' ) {
         return $self->do_search( $request, $response );

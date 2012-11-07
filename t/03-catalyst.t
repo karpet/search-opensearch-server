@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+use lib 't/lib/MyApp/lib';
 use Test::More tests => 19;
 use Data::Dump qw( dump );
 use JSON;
@@ -30,17 +31,20 @@ SKIP: {
         diag("set OPENSEARCH_INDEX to valid path to test Plack with Lucy");
         skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 19;
     }
-    eval "use Catalyst::Test";
+    eval "use Catalyst::Test qw(MyApp)";
     if ($@) {
+        warn $@;
         skip "Catalyst::Test not available", 19;
+    }
+    eval "use HTTP::Request::Common";
+    if ($@) {
+        warn $@;
+        skip "HTTP::Request::Common not available", 19;
     }
     eval "use Search::OpenSearch::Engine::Lucy";
     if ($@) {
         skip "Search::OpenSearch::Engine::Lucy not available", 19;
     }
-
-    Catalyst::Test->import('MyApp');
-    require HTTP::Request::Common;
 
     my $res;
     ok( $res = request( GET('/sos/search?q=test') ),
