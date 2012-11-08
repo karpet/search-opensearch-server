@@ -39,18 +39,26 @@ sub log {
     my $app  = $self->_app;
     my $msg  = shift or croak "No logger message supplied";
     my $lvl  = shift || 'debug';
-    $app->log->$lvl($msg);
+    if ( $lvl eq 'debug' ) {
+        $app->log->$lvl($msg) if $app->debug;
+    }
+    else {
+        $app->log->$lvl($msg);
+    }
 }
 
-sub search : Local {
+sub process_request {
     my ( $self, $c, @args ) = @_;
-    $c->log->debug("found search() method") if $c->debug;
+
     my $request  = $c->request;
     my $response = $c->response;
 
     my $path = join( '/', @args );
-    warn "path=$path";
-    if ( $request->method eq 'GET' and !length $path ) {
+    $self->log("sos path=$path") if $c->debug;
+
+    if ( $request->method eq 'GET'
+        and ( !length $path or $path eq 'search' ) )
+    {
         return $self->do_search( $request, $response );
     }
     elsif ( $request->method eq 'GET'
@@ -67,6 +75,11 @@ sub search : Local {
     else {
         return $self->handle_no_query( $request, $response );
     }
+}
+
+sub default : Path {
+    my ( $self, $c, @arg ) = @_;
+    $self->process_request( $c, @arg );
 }
 
 1;
@@ -102,7 +115,7 @@ Search::OpenSearch::Server::Catalyst - serve OpenSearch results with Catalyst
 
  # now you can:
  # GET  /api/search
- # POST /api/search
+ # POST /api/foo/bar
  
 =head1 DESCRIPTION
 
@@ -115,7 +128,7 @@ new or overridden methods are documented here.
 
 =head2 new( I<params> )
 
-Inherits from Plack::Component. I<params> can be:
+Inherits from Catalyst::Controller. I<params> can be:
 
 =over
 
@@ -135,17 +148,37 @@ See L<Dezi::Stats> for example.
 
 =back
 
-=head2 search
+=head2 default( I<ctx> )
 
+This method registers a URL action in the controller namespace.
+
+The default() action passes the I<ctx> and any other path args
+to process_request(). Override this method to control what
+your addressable URL(s) look like.
+
+=head2 process_request( I<ctx>, I<args> )
+
+Process the incoming request and create a response.
+The algorithm is, briefly:
+
+ GET -> do_search()
+ POST, PUT, DELETE -> do_rest_api()
+
+I<args> is an array joined with C</> to create an
+actionable path. If that path is the string C<search>
+or is empty, then do_search() is triggered on GET requests.
+The path is ignored for all non-GET requests.
 
 =head2 log( I<msg>, I<level> )
 
-Passes I<msg> on to the app $ctx->log method.
+Passes I<msg> on to the app $ctx->log method. I<level> defaults
+to C<debug> and will only be passed to $ctx->log if $ctx->debug
+is true.
 
 =head2 setup_engine
 
 Instantiates the Search::OpenSearch::Engine, if necessary, using
-the values set in engine_config().
+the values set in engine_config(). Called within new().
 
 =head1 AUTHOR
 
