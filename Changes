@@ -80,3 +80,7 @@ Revision history for Search-OpenSearch-Server
 0.21    14 Oct 2012
         * use CORE::time() instead of HiRes for default mtime.
         * fix bug where empty 'x' param was overriding defined fields.
+
+0.22    7 Nov 2012
+        * add Search::OpenSearch::Server::Catalyst and CatalystX::Controller::OpenSearch
+
