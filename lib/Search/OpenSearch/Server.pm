@@ -203,12 +203,12 @@ sub do_rest_api {
             url => ( $request->header('X-SOS-Content-Location') || $path ),
             modtime =>
                 ( $request->header('X-SOS-Last-Modified') || CORE::time() ),
-            content => $body,
-            type    => (
+            content => ( $body || '' ),
+            type => (
                        $request->header('X-SOS-Content-Type')
                     || $request->content_type
             ),
-            size    => $request->content_length,
+            size => ( $request->content_length || 0 ),
             charset => (
                        $request->header('X-SOS-Encoding')
                     || $request->content_encoding
