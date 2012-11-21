@@ -84,3 +84,7 @@ Revision history for Search-OpenSearch-Server
 0.22    7 Nov 2012
         * add Search::OpenSearch::Server::Catalyst and CatalystX::Controller::OpenSearch
 
+0.23    xxx
+        * add optional 3rd param to do_rest_api() to explicitly pass in request path,
+          and use that in Catalyst server.
+

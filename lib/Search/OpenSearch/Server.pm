@@ -10,7 +10,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 
-our $VERSION = '0.22';
+our $VERSION = '0.22_01';
 
 my %formats = (
     'XML'   => 1,
@@ -141,6 +141,7 @@ sub do_rest_api {
     my $self     = shift;
     my $request  = shift or croak "request required";
     my $response = shift or croak "response required";
+    my $path     = shift || $request->path;
 
     my $start_time = time();
     my %args       = ();
@@ -199,9 +200,7 @@ sub do_rest_api {
 
         # defer to explicit headers over implicit values
         my $doc = {
-            url => (
-                $request->header('X-SOS-Content-Location') || $request->path
-            ),
+            url => ( $request->header('X-SOS-Content-Location') || $path ),
             modtime =>
                 ( $request->header('X-SOS-Last-Modified') || CORE::time() ),
             content => $body,
@@ -336,7 +335,7 @@ A Response object. Should act like a Plack::Response or a Catalyst::Response.
 
 Will return the I<response> object.
 
-=head2 do_rest_api( I<request>, I<response> )
+=head2 do_rest_api( I<request>, I<response>[, I<path>] )
 
 Calls the appropriate REST method on the engine().
 

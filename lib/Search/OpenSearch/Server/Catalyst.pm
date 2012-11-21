@@ -8,7 +8,7 @@ use Data::Dump qw( dump );
 use MRO::Compat;
 use mro 'c3';
 
-our $VERSION = '0.22';
+our $VERSION = '0.22_01';
 
 sub new {
     my $class = shift;
@@ -64,13 +64,13 @@ sub process_request {
     elsif ( $request->method eq 'GET'
         and $self->engine->has_rest_api )
     {
-        return $self->do_rest_api( $request, $response );
+        return $self->do_rest_api( $request, $response, $path );
     }
     if ( !$self->engine->has_rest_api && $request->method eq 'POST' ) {
         return $self->do_search( $request, $response );
     }
     elsif ( $self->engine->has_rest_api ) {
-        return $self->do_rest_api( $request, $response );
+        return $self->do_rest_api( $request, $response, $path );
     }
     else {
         return $self->handle_no_query( $request, $response );
