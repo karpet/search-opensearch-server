@@ -16,7 +16,7 @@ use overload
     'bool'   => sub {1},
     fallback => 1;
 
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 sub new {
     my $proto = shift;

@@ -88,3 +88,5 @@ Revision history for Search-OpenSearch-Server
         * add optional 3rd param to do_rest_api() to explicitly pass in request path,
           and use that in Catalyst server.
 
+0.24    26 Nov 2012
+        * clean up debug logging
