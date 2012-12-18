@@ -9,8 +9,9 @@ use Search::OpenSearch::Result;
 use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
+use Scalar::Util qw( blessed );
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 my %formats = (
     'XML'   => 1,
@@ -38,7 +39,13 @@ sub do_search {
     my $response = shift or croak "response required";
     my %args     = ();
     my $params   = $request->parameters;
-    my $query    = $params->{q};
+
+    # convert Plack style to Catalyst style
+    if ( blessed($params) && $params->isa('Hash::MultiValue') ) {
+        $params = $params->mixed;
+    }
+    
+    my $query = $params->{q};
     if ( !defined $query ) {
         $self->handle_no_query( $request, $response );
     }

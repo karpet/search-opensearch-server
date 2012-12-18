@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 22;
 use Data::Dump qw( dump );
 use JSON;
 
@@ -28,15 +28,15 @@ SKIP: {
     my $index_path = $ENV{OPENSEARCH_INDEX};
     if ( !defined $index_path or !-d $index_path ) {
         diag("set OPENSEARCH_INDEX to valid path to test Plack with Lucy");
-        skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 19;
+        skip "set OPENSEARCH_INDEX to valid path to test Plack with Lucy", 22;
     }
     eval "use Plack::Test";
     if ($@) {
-        skip "Plack::Test not available", 19;
+        skip "Plack::Test not available", 22;
     }
     eval "use Search::OpenSearch::Engine::Lucy";
     if ($@) {
-        skip "Search::OpenSearch::Engine::Lucy not available", 19;
+        skip "Search::OpenSearch::Engine::Lucy not available", 22;
     }
 
     require Search::OpenSearch::Server::Plack;
@@ -65,6 +65,23 @@ SKIP: {
             cmp_ok( $results->{total}, '>=', 1, ">= one hit" );
             ok( exists $results->{search_time}, "search_time key exists" );
             is( $results->{title}, qq/OpenSearch Results/, "got title" );
+        }
+    );
+
+    test_psgi(
+        app    => $app,
+        client => sub {
+            my $cb  = shift;
+            my $req = HTTP::Request->new(
+                GET => 'http://localhost/?q=test&x=foo&x=bar' );
+            my $res = $cb->($req);
+
+            #diag( $res->content );
+            is( $res->code, 500, "unknown fields in 'x' param" );
+            ok( my $results = decode_json( $res->content ),
+                "decode_json response" );
+            is( $results->{success}, 0,
+                "json response on error shows success==0" );
         }
     );
 

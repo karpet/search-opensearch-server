@@ -90,3 +90,6 @@ Revision history for Search-OpenSearch-Server
 
 0.24    26 Nov 2012
         * clean up debug logging
+
+0.25    18 Dec 2012
+        * support multi-value GET params properly
