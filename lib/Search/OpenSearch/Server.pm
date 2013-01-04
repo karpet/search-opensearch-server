@@ -11,7 +11,7 @@ use JSON;
 use Time::HiRes qw( time );
 use Scalar::Util qw( blessed );
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 my %formats = (
     'XML'   => 1,
