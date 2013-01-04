@@ -94,6 +94,6 @@ Revision history for Search-OpenSearch-Server
 0.25    18 Dec 2012
         * support multi-value GET params properly
 
-0.26    xxx
+0.26    04 Jan 2013
         * pass request parameters to Engine REST methods
 
