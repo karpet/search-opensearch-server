@@ -44,7 +44,7 @@ sub do_search {
     if ( blessed($params) && $params->isa('Hash::MultiValue') ) {
         $params = $params->mixed;
     }
-    
+
     my $query = $params->{q};
     if ( !defined $query ) {
         $self->handle_no_query( $request, $response );
@@ -153,8 +153,14 @@ sub do_rest_api {
     my $start_time = time();
     my %args       = ();
     my $params     = $request->parameters;
-    my $method     = $request->method;
-    my $engine     = $self->engine;
+
+    # convert Plack style to Catalyst style
+    if ( blessed($params) && $params->isa('Hash::MultiValue') ) {
+        $params = $params->mixed;
+    }
+
+    my $method = $request->method;
+    my $engine = $self->engine;
 
     if ( !$engine ) {
         croak "engine() is undefined";
@@ -252,7 +258,7 @@ sub do_rest_api {
             }
 
             # call the REST method
-            my $rest = $engine->$method($arg);
+            my $rest = $engine->$method($arg, $params);
             $rest->{build_time} = sprintf( "%0.5f", time() - $start_time );
 
             # set up the response
