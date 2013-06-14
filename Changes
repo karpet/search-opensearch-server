@@ -97,3 +97,5 @@ Revision history for Search-OpenSearch-Server
 0.26    04 Jan 2013
         * pass request parameters to Engine REST methods
 
+0.27    13 June 2013
+        * POD tests optional per https://rt.cpan.org/Ticket/Display.html?id=86129
