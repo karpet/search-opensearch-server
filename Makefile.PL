@@ -10,6 +10,7 @@ requires 'Test::More'         => 0;
 requires 'Search::OpenSearch' => 0.24;
 requires 'Plack'              => 0;
 requires 'JSON'               => 0;
+requires 'Try::Tiny'          => 0;
 
 license 'http://dev.perl.org/licenses/';
 homepage 'https://github.com/karpet/search-opensearch-server';

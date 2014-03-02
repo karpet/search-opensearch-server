@@ -10,6 +10,7 @@ use Data::Dump qw( dump );
 use JSON;
 use Time::HiRes qw( time );
 use Scalar::Util qw( blessed );
+use Try::Tiny;
 
 our $VERSION = '0.27';
 
@@ -94,18 +95,21 @@ sub do_search {
             croak "engine() is undefined";
         }
 
-        my $search_response;
-        eval {
-            $search_response = $self->engine->search(%args);
+        my $errmsg;
+        my $search_response = try {
+            my $resp = $self->engine->search(%args);
 
             if ( $self->stats_logger ) {
-                $self->stats_logger->log( $request, $search_response );
+                $self->stats_logger->log( $request, $resp );
             }
-        };
 
-        my $errmsg;
-        if ( $@ or ( $search_response and $search_response->error ) ) {
-            $errmsg = "$@";
+            return $resp;
+        }
+        catch {
+            $errmsg = $_;
+            return undef;    # so $search_response is not set.
+        };
+        if ( $errmsg or ( $search_response and $search_response->error ) ) {
             if ( !$errmsg and $search_response and $search_response->error ) {
                 $errmsg = $search_response->error;
             }
@@ -258,7 +262,7 @@ sub do_rest_api {
             }
 
             # call the REST method
-            my $rest = $engine->$method($arg, $params);
+            my $rest = $engine->$method( $arg, $params );
             $rest->{build_time} = sprintf( "%0.5f", time() - $start_time );
 
             # set up the response
