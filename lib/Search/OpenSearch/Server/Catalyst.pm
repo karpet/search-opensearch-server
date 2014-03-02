@@ -8,7 +8,7 @@ use Data::Dump qw( dump );
 use MRO::Compat;
 use mro 'c3';
 
-our $VERSION = '0.27_01';
+our $VERSION = '0.28';
 
 sub new {
     my $class = shift;
