@@ -12,7 +12,7 @@ use Time::HiRes qw( time );
 use Scalar::Util qw( blessed );
 use Try::Tiny;
 
-our $VERSION = '0.27';
+our $VERSION = '0.27_01';
 
 my %formats = (
     'XML'   => 1,
