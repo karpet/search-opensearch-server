@@ -1,5 +1,8 @@
 Revision history for Search-OpenSearch-Server
 
+0.28 xxx
+ - use Try::Tiny instead of eval{}
+
 0.27 13 June 2013
  - POD tests optional per https://rt.cpan.org/Ticket/Display.html?id=86129
 
