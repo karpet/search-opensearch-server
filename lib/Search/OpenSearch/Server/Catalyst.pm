@@ -1,38 +1,11 @@
 package Search::OpenSearch::Server::Catalyst;
-
-use warnings;
-use strict;
-use base qw( Search::OpenSearch::Server Catalyst::Controller );
+use MooseX::MethodAttributes::Role;
 use Carp;
 use Data::Dump qw( dump );
 use MRO::Compat;
 use mro 'c3';
 
 our $VERSION = '0.299_01';
-
-sub new {
-    my $class = shift;
-    my $self  = $class->next::method(@_);
-    $self->setup_engine();
-    return $self;
-}
-
-sub setup_engine {
-    my $self = shift;
-    if ( defined $self->engine ) {
-        return 1;
-    }
-    if ( defined $self->engine_config ) {
-        $self->engine(
-            Search::OpenSearch->engine(
-                logger => $self,
-                %{ $self->engine_config },
-            )
-        );
-        return 1;
-    }
-    croak "engine() or engine_config() required";
-}
 
 sub log {
     my $self = shift;
@@ -93,9 +66,10 @@ Search::OpenSearch::Server::Catalyst - serve OpenSearch results with Catalyst
 =head1 SYNOPSIS
 
  package MyApp::Controller::API;
- use strict;
- use warnings;
- use base 'Search::OpenSearch::Server::Catalyst';
+ use Moose;
+ extends 'Catalyst::Controller';
+ with 'Search::OpenSearch::Server';
+ with 'Search::OpenSearch::Server::Catalyst';
  use MyStats;   # acts like a Dezi::Stats subclass
  
  __PACKAGE__->config(
@@ -119,34 +93,17 @@ Search::OpenSearch::Server::Catalyst - serve OpenSearch results with Catalyst
  
 =head1 DESCRIPTION
 
-Search::OpenSearch::Server::Catalyst is a L<Catalyst::Constroller> subclass.
+B<NOTE> This class used to be a Controller subclass. It is Role
+as of version 0.300.
+
+Search::OpenSearch::Server::Catalyst is a consumable Role used
+by L<CatalystX::Controller::OpenSearch>. If you just want a simple
+controller, you probably want L<CatalystX::Controller::OpenSearch>.
 
 =head1 METHODS
 
-This class inherits from Search::OpenSearch::Server and Catalyst::Controller. Only
+This class isa L<MooseX::MethodAttributes::Role>. Only
 new or overridden methods are documented here.
-
-=head2 new( I<params> )
-
-Inherits from Catalyst::Controller. I<params> can be:
-
-=over
-
-=item engine
-
-A Search::OpenSearch::Engine instance. Either this or B<engine_config> is required.
-
-=item engine_config
-
-A hashref passed to the Search::OpenSearch->engine method.
-Either this or B<engine> is required.
-
-=item stats_logger
-
-An object that implements at least one method called B<log>.
-See L<Dezi::Stats> for example.
-
-=back
 
 =head2 default( I<ctx> )
 
@@ -174,11 +131,6 @@ The path is ignored for all non-GET requests.
 Passes I<msg> on to the app $ctx->log method. I<level> defaults
 to C<debug> and will only be passed to $ctx->log if $ctx->debug
 is true.
-
-=head2 setup_engine
-
-Instantiates the Search::OpenSearch::Engine, if necessary, using
-the values set in engine_config(). Called within new().
 
 =head1 AUTHOR
 

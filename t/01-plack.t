@@ -76,7 +76,7 @@ SKIP: {
                 GET => 'http://localhost/?q=test&x=foo&x=bar' );
             my $res = $cb->($req);
 
-            diag( $res->content );
+            #diag( $res->content );
             is( $res->code, 500, "unknown fields in 'x' param" );
             ok( my $results = decode_json( $res->content ),
                 "decode_json response" );

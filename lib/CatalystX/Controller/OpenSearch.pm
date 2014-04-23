@@ -1,6 +1,8 @@
 package CatalystX::Controller::OpenSearch;
-use strict;
-use base qw( Search::OpenSearch::Server::Catalyst );
+use Moose;
+extends 'Catalyst::Controller';
+with 'Search::OpenSearch::Server';
+with 'Search::OpenSearch::Server::Catalyst';
 
 1;
 
@@ -8,17 +10,19 @@ __END__
 
 =head1 NAME
 
-CatalystX::Controller::OpenSearch - stub for Search::OpenSearch::Server::Catalyst
+CatalystX::Controller::OpenSearch - controller for Search::OpenSearch::Server::Catalyst
 
 =head1 SYNOPSIS
 
  package MyApp::Controller::Search;
- use base qw( CatalystX::Controller::OpenSearch );
+ use Moose;
+ extends 'CatalystX::Controller::OpenSearch';
  1;
 
 =head1 DESCRIPTION
 
-This class is a stub subclassing L<Search::OpenSearch::Server::Catalyst>.
+This class is a controller consuming the Roles L<Search::OpenSearch::Server::Catalyst>
+and L<Search::OpenSearch::Server>.
 
 =head1 AUTHOR
 

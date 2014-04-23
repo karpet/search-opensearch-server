@@ -1,6 +1,6 @@
 package MyApp::Controller::SOS;
-use strict;
-use base qw( CatalystX::Controller::OpenSearch );
+use Moose;
+extends 'CatalystX::Controller::OpenSearch';
 
 __PACKAGE__->config(
     engine_config => {

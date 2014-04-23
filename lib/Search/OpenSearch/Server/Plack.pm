@@ -13,27 +13,6 @@ use Time::HiRes qw( time );
 
 our $VERSION = '0.299_01';
 
-sub prepare_app {
-    my $self = shift;
-    $self->setup_engine();
-}
-
-sub init_engine {
-    my $self = shift;
-    return Search::OpenSearch->engine(
-        logger => $self,
-        %{ $self->engine_config },
-    );
-}
-
-sub setup_engine {
-    my $self = shift;
-    if ( defined $self->engine ) {
-        return 1;
-    }
-    confess "engine() or engine_config() required";
-}
-
 sub log {
     my $self = shift;
     my $req  = $self->{_this_req};
@@ -140,9 +119,9 @@ Inherits from Plack::Component. I<params> can be:
 
 =over
 
-=item init_engine
+=item engine
 
-Returns a Search::OpenSearch::Engine instance. 
+Should be a L<Search::OpenSearch::Engine> instance. 
 
 =item engine_config
 
@@ -165,15 +144,6 @@ instantiate a L<Plack::Request> and pass it into do_search().
 =head2 log( I<msg>, I<level> )
 
 Passes I<msg> on to the Plack::Request->logger object, if any.
-
-=head2 prepare_app
-
-Calls setup_engine().
-
-=head2 setup_engine
-
-Instantiates the Search::OpenSearch::Engine, if necessary, using
-the values set in engine_config().
 
 =head2 do_rest_api( I<request>, I<response> )
 

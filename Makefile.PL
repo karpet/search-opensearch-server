@@ -12,6 +12,9 @@ requires 'Plack'              => 0;
 requires 'JSON'               => 0;
 requires 'Try::Tiny'          => 0;
 
+recommends 'Catalyst::Runtime'            => 0;
+recommends 'Catalyst::Action::RenderView' => 0;
+
 license 'http://dev.perl.org/licenses/';
 homepage 'https://github.com/karpet/search-opensearch-server';
 bugtracker

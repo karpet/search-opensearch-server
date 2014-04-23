@@ -12,8 +12,6 @@ use Try::Tiny;
 
 our $VERSION = '0.299_01';
 
-requires 'init_engine';
-
 has 'engine' => (
     is      => 'rw',
     isa     => InstanceOf ['Search::OpenSearch::Engine'],
@@ -30,6 +28,14 @@ has 'stats_logger' => ( is => 'rw', isa => Object );
 has 'http_allow'   => ( is => 'rw', isa => ArrayRef );
 
 sub init_engine_config { {} }
+
+sub init_engine {
+    my $self = shift;
+    return Search::OpenSearch->engine(
+        logger => $self,
+        %{ $self->engine_config },
+    );
+}
 
 my %formats = (
     'XML'   => 1,
@@ -318,8 +324,7 @@ Search::OpenSearch::Server - serve OpenSearch results
 
 =head1 DESCRIPTION
 
-Search::OpenSearch::Server is a Moose::Role. It requires
-consuming classes to define a 'init_engine' method.
+Search::OpenSearch::Server is a Moose::Role. 
 
 =head1 METHODS
 
@@ -330,9 +335,18 @@ The following methods are available to consumers.
 A L<Search::OpenSearch::Engine> instance created by B<init_engine>
 or passed to new().
 
+=head2 init_engine
+
+Returns a L<Search::OpenSearch::Engine> instance, passing in the contents
+of B<engine_config> with the C<logger> param set to $self.
+
 =head2 engine_config
 
 Defaults to an empty hashref.
+
+=head2 init_engine_config
+
+Returns empty hashref.
 
 =head2 stats_logger
 
