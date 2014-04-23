@@ -16,13 +16,16 @@ CatalystX::Controller::OpenSearch - controller for Search::OpenSearch::Server::C
 
  package MyApp::Controller::Search;
  use Moose;
- extends 'CatalystX::Controller::OpenSearch';
+ BEGIN { extends 'CatalystX::Controller::OpenSearch'; }
  1;
 
 =head1 DESCRIPTION
 
 This class is a controller consuming the Roles L<Search::OpenSearch::Server::Catalyst>
 and L<Search::OpenSearch::Server>.
+
+B<NOTE> The BEGIN block noted in the SYNOPSIS is important for compatability with Moose Roles
+and Catalyst controller method attributes.
 
 =head1 AUTHOR
 

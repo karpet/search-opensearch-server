@@ -1,6 +1,6 @@
 package MyApp::Controller::SOS;
 use Moose;
-extends 'CatalystX::Controller::OpenSearch';
+BEGIN { extends 'CatalystX::Controller::OpenSearch'; }
 
 __PACKAGE__->config(
     engine_config => {
