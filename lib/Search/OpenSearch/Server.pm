@@ -1,9 +1,7 @@
 package Search::OpenSearch::Server;
-
-use warnings;
-use strict;
+use Moose::Role;
+use Types::Standard qw( InstanceOf Bool Str HashRef ArrayRef Object );
 use Carp;
-use Plack::Util::Accessor qw( engine engine_config stats_logger http_allow );
 use Search::OpenSearch;
 use Search::OpenSearch::Result;
 use Data::Dump qw( dump );
@@ -12,7 +10,26 @@ use Time::HiRes qw( time );
 use Scalar::Util qw( blessed );
 use Try::Tiny;
 
-our $VERSION = '0.28';
+our $VERSION = '0.299_01';
+
+requires 'init_engine';
+
+has 'engine' => (
+    is      => 'rw',
+    isa     => InstanceOf ['Search::OpenSearch::Engine'],
+    lazy    => 1,
+    builder => 'init_engine'
+);
+has 'engine_config' => (
+    is      => 'rw',
+    isa     => HashRef,
+    lazy    => 1,
+    builder => 'init_engine_config'
+);
+has 'stats_logger' => ( is => 'rw', isa => Object );
+has 'http_allow'   => ( is => 'rw', isa => ArrayRef );
+
+sub init_engine_config { {} }
 
 my %formats = (
     'XML'   => 1,
@@ -301,38 +318,29 @@ Search::OpenSearch::Server - serve OpenSearch results
 
 =head1 DESCRIPTION
 
-Search::OpenSearch::Server is an abstract base class with some
-basic methods defining server behavior.
+Search::OpenSearch::Server is a Moose::Role. It requires
+consuming classes to define a 'init_engine' method.
 
 =head1 METHODS
 
-=head1 new
+The following methods are available to consumers.
 
-The Search::OpenSearch::Server abstract class does not implement
-a constructor. Each subclass must do that.
+=head2 engine
 
-However, accessor/mutator methods are supported via Plack::Util::Accessor,
-and these should be set in the constructor.
+A L<Search::OpenSearch::Engine> instance created by B<init_engine>
+or passed to new().
 
-=over
+=head2 engine_config
 
-=item 
+Defaults to an empty hashref.
 
-engine
+=head2 stats_logger
 
-=item
+Expects an object of some kind.
 
-engine_config
+=head2 http_allow
 
-=item
-
-stats_logger
-
-=item
-
-http_allow
-
-=back 
+Expects an array ref of HTTP method names.
 
 =head2 do_search( I<request>, I<response> )
 

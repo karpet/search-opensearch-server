@@ -1,5 +1,8 @@
 Revision history for Search-OpenSearch-Server
 
+0.299_01 xxx
+ - rewrite to use Moose, support SOS 0.400
+
 0.28 02 March 2014
  - use Try::Tiny instead of eval{}
 

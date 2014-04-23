@@ -1,8 +1,7 @@
 package Search::OpenSearch::Server::Plack;
-
-use warnings;
-use strict;
-use base qw( Search::OpenSearch::Server Plack::Component );
+use Moose;
+extends 'Plack::Component';
+with 'Search::OpenSearch::Server';
 use Carp;
 use Search::OpenSearch;
 use Search::OpenSearch::Result;
@@ -12,11 +11,19 @@ use JSON;
 use Scalar::Util qw( weaken );
 use Time::HiRes qw( time );
 
-our $VERSION = '0.28';
+our $VERSION = '0.299_01';
 
 sub prepare_app {
     my $self = shift;
     $self->setup_engine();
+}
+
+sub init_engine {
+    my $self = shift;
+    return Search::OpenSearch->engine(
+        logger => $self,
+        %{ $self->engine_config },
+    );
 }
 
 sub setup_engine {
@@ -24,22 +31,7 @@ sub setup_engine {
     if ( defined $self->engine ) {
         return 1;
     }
-    if ( defined $self->engine_config ) {
-
-        # this appears to correctly defer creation
-        # till each child is created, regardless of -L Delayed
-        # So nice when code Just Works.
-        #warn "[$$] engine created";
-
-        $self->engine(
-            Search::OpenSearch->engine(
-                logger => $self,
-                %{ $self->engine_config },
-            )
-        );
-        return 1;
-    }
-    croak "engine() or engine_config() required";
+    confess "engine() or engine_config() required";
 }
 
 sub log {
@@ -81,17 +73,17 @@ sub call {
     }
 }
 
-sub do_search {
-    my ( $self, $req, $response ) = @_;
-    $self->SUPER::do_search( $req, $response );
+around 'do_search' => sub {
+    my ( $orig, $self, $req, $response ) = @_;
+    $self->$orig( $req, $response );
     return $response->finalize();
-}
+};
 
-sub do_rest_api {
-    my ( $self, $req, $response ) = @_;
-    $self->SUPER::do_rest_api( $req, $response );
+around 'do_rest_api' => sub {
+    my ( $orig, $self, $req, $response ) = @_;
+    $self->$orig( $req, $response );
     return $response->finalize();
-}
+};
 
 1;
 
@@ -148,14 +140,13 @@ Inherits from Plack::Component. I<params> can be:
 
 =over
 
-=item engine
+=item init_engine
 
-A Search::OpenSearch::Engine instance. Either this or B<engine_config> is required.
+Returns a Search::OpenSearch::Engine instance. 
 
 =item engine_config
 
 A hashref passed to the Search::OpenSearch->engine method.
-Either this or B<engine> is required.
 
 =item stats_logger
 

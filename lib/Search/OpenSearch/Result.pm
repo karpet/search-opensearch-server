@@ -1,37 +1,22 @@
 package Search::OpenSearch::Result;
-use strict;
-use warnings;
+use Moose;
 use JSON;
-use Plack::Util::Accessor qw(
-    build_time
-    search_time
-    doc
-    code
-    success
-    msg
-    total
-);
 use overload
     '""'     => sub { $_[0]->stringify; },
     'bool'   => sub {1},
     fallback => 1;
 
-our $VERSION = '0.28';
+use namespace::sweep;
 
-sub new {
-    my $proto = shift;
-    my $class = ref $proto || $proto;
+our $VERSION = '0.299_01';
 
-    my $self;
-    if ( @_ == 1 && ref $_[0] eq 'HASH' ) {
-        $self = bless { %{ $_[0] } }, $class;
-    }
-    else {
-        $self = bless {@_}, $class;
-    }
-
-    $self;
-}
+has 'build_time'  => ( is => 'rw' );
+has 'search_time' => ( is => 'rw' );
+has 'doc'         => ( is => 'rw' );
+has 'code'        => ( is => 'rw' );
+has 'success'     => ( is => 'rw' );
+has 'msg'         => ( is => 'rw' );
+has 'total'       => ( is => 'rw' );
 
 sub stringify {
     my $self = shift;
