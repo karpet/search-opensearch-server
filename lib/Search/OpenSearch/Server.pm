@@ -37,6 +37,9 @@ sub init_engine {
     );
 }
 
+# no-op for back-compat
+sub setup_engine { }
+
 my %formats = (
     'XML'   => 1,
     'JSON'  => 1,
@@ -432,6 +435,10 @@ Will return the I<response> object.
 =head2 log( I<msg> [, <level ] )
 
 Utility method. Default is to warn(I<msg>).
+
+=head2 setup_engine
+
+A no-op for backwards compatability for pre-Moose version of this class.
  
 =head1 AUTHOR
 
