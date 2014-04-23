@@ -8,7 +8,7 @@ use overload
 
 use namespace::sweep;
 
-our $VERSION = '0.299_01';
+our $VERSION = '0.299_02';
 
 has 'build_time'  => ( is => 'rw' );
 has 'search_time' => ( is => 'rw' );

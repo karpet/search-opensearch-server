@@ -10,7 +10,7 @@ use Time::HiRes qw( time );
 use Scalar::Util qw( blessed );
 use Try::Tiny;
 
-our $VERSION = '0.299_01';
+our $VERSION = '0.299_02';
 
 has 'engine' => (
     is      => 'rw',
