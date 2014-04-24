@@ -1,6 +1,6 @@
 Revision history for Search-OpenSearch-Server
 
-0.299_02 xxx
+0.299_02 23 April 2014
  - add doc about BEGIN block for Catalyst::Controller extension
  - resurrect setup_engine() method as a no-op for backwards compatability
  - swap Catalyst Role consumption order to fix log() usage
