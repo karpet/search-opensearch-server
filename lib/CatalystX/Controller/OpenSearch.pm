@@ -2,8 +2,8 @@ package CatalystX::Controller::OpenSearch;
 use Moose;
 use namespace::autoclean;
 BEGIN { extends 'Catalyst::Controller'; }
-with 'Search::OpenSearch::Server';
 with 'Search::OpenSearch::Server::Catalyst';
+with 'Search::OpenSearch::Server';
 
 1;
 
