@@ -23,6 +23,18 @@ use JSON;
 
 }
 
+{
+
+    package MyServer;
+    @MyServer::ISA = ('Search::OpenSearch::Server::Plack');
+
+    sub log {
+        my ( $self, $msg ) = @_;
+        Test::More::diag("$self: $msg");
+    }
+
+}
+
 SKIP: {
 
     my $index_path = $ENV{OPENSEARCH_INDEX};
@@ -42,7 +54,7 @@ SKIP: {
     require Search::OpenSearch::Server::Plack;
     require HTTP::Request;
 
-    my $app = Search::OpenSearch::Server::Plack->new(
+    my $app = MyServer->new(
         engine_config => {
             type  => 'Lucy',
             index => [$index_path],
