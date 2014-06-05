@@ -250,6 +250,7 @@ sub do_rest_api {
             type => (
                        $request->header('X-SOS-Content-Type')
                     || $request->content_type
+                    || 'application/json'
             ),
             size => ( $request->content_length || 0 ),
             charset => (
