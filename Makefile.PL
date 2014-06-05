@@ -11,6 +11,7 @@ requires 'Search::OpenSearch' => '0.399_03';
 requires 'Plack'              => 0;
 requires 'JSON'               => 0;
 requires 'Try::Tiny'          => 0;
+requires 'Moose'              => 0;
 
 recommends 'Catalyst::Runtime'            => 0;
 recommends 'Catalyst::Action::RenderView' => 0;
