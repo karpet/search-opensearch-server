@@ -1,5 +1,8 @@
 Revision history for Search-OpenSearch-Server
 
+0.299_03 05 June 2014
+ - add missing Moose dependency to Makefile.PL
+
 0.299_02 23 April 2014
  - add doc about BEGIN block for Catalyst::Controller extension
  - resurrect setup_engine() method as a no-op for backwards compatability
