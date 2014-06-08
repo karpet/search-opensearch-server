@@ -7,10 +7,11 @@ name 'Search-OpenSearch-Server';
 perl_version '5.8.3';
 all_from 'lib/Search/OpenSearch/Server.pm';
 requires 'Test::More'         => 0;
-requires 'Search::OpenSearch' => '0.399_03';
+requires 'Search::OpenSearch' => '0.400';
 requires 'Plack'              => 0;
 requires 'JSON'               => 0;
 requires 'Try::Tiny'          => 0;
+requires 'Type::Tiny'         => 0;
 requires 'Moose'              => 0;
 
 recommends 'Catalyst::Runtime'            => 0;

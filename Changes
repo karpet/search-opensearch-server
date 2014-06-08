@@ -1,5 +1,8 @@
 Revision history for Search-OpenSearch-Server
 
+0.300 07 June 2014
+ - official Moose release in support of S::OS 0.400
+
 0.299_03 05 June 2014
  - add missing Moose dependency to Makefile.PL
 

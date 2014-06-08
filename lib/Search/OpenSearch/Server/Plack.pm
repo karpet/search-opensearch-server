@@ -11,7 +11,7 @@ use JSON;
 use Scalar::Util qw( weaken );
 use Time::HiRes qw( time );
 
-our $VERSION = '0.299_03';
+our $VERSION = '0.300';
 
 sub log {
     my $self = shift;

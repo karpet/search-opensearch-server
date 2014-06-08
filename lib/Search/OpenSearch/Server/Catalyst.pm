@@ -6,7 +6,7 @@ use MRO::Compat;
 use mro 'c3';
 use namespace::autoclean;
 
-our $VERSION = '0.299_03';
+our $VERSION = '0.300';
 
 sub log {
     my $self = shift;
