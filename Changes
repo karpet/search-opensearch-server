@@ -1,5 +1,8 @@
 Revision history for Search-OpenSearch-Server
 
+0.301 14 Aug 2015
+ - require namespace::autoclean instead of assuming dependency from S::OS
+
 0.300 07 June 2014
  - official Moose release in support of S::OS 0.400
 

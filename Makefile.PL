@@ -13,6 +13,7 @@ requires 'JSON'               => 0;
 requires 'Try::Tiny'          => 0;
 requires 'Type::Tiny'         => 0;
 requires 'Moose'              => 0;
+requires 'namespace::autoclean' => 0;
 
 recommends 'Catalyst::Runtime'            => 0;
 recommends 'Catalyst::Action::RenderView' => 0;

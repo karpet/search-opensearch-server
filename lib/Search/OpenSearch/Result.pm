@@ -6,9 +6,9 @@ use overload
     'bool'   => sub {1},
     fallback => 1;
 
-use namespace::sweep;
+use namespace::autoclean;
 
-our $VERSION = '0.300';
+our $VERSION = '0.301';
 
 has 'build_time'  => ( is => 'rw' );
 has 'search_time' => ( is => 'rw' );
